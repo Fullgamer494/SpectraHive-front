@@ -5,6 +5,11 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  css: {
+    postcss: {
+      plugins: [],
+    },
+  },
   server: {
     host: true, // 0.0.0.0 so the dev server is reachable from Docker (RF-17)
     port: 5173,
