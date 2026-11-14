@@ -1,0 +1,18 @@
+# Dependencies / build
+node_modules/
+dist/
+.vite/
+coverage/
+
+# Secrets (RN-12 / RN-13: never commit credentials)
+.env
+.env.*
+!.env.example
+
+# Logs / OS / editor
+*.log
+npm-debug.log*
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
