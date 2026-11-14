@@ -7,12 +7,20 @@ interface AladinViewerProps {
   coordinates: TargetCoordinates
   survey?: string
   className?: string
+  onPositionChange?: (ra: number, dec: number) => void
+  onZoomChange?: (fov: number) => void
+  onClickCoordinates?: (ra: number, dec: number) => void
+  onHoverCoordinates?: (ra: number, dec: number) => void
 }
 
 export function AladinViewer({
   coordinates,
   survey,
   className = '',
+  onPositionChange,
+  onZoomChange,
+  onClickCoordinates,
+  onHoverCoordinates,
 }: AladinViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
 
@@ -21,6 +29,10 @@ export function AladinViewer({
     dec: coordinates.dec,
     fov: coordinates.fov,
     survey,
+    onPositionChange,
+    onZoomChange,
+    onClickCoordinates,
+    onHoverCoordinates,
   })
 
   return (
@@ -44,10 +56,10 @@ export function AladinViewer({
           </div>
 
           <p className="mt-6 text-sm font-medium tracking-widest text-cyan-300 uppercase animate-pulse">
-            Acquiring CDS Viewport...
+            Acquiring Viewport...
           </p>
           <p className="mt-1 text-xs text-slate-400 font-mono">
-            RA {coordinates.ra.toFixed(4)}° / Dec {coordinates.dec.toFixed(4)}° • FOV {coordinates.fov}°
+            RA {coordinates.ra.toFixed(4)}° / Dec {coordinates.dec >= 0 ? '+' : ''}{coordinates.dec.toFixed(4)}° • FOV {coordinates.fov}°
           </p>
         </div>
       )}
@@ -73,10 +85,10 @@ export function AladinViewer({
             </div>
 
             <h3 className="text-base font-semibold text-slate-100">
-              CDS Sky Viewport Unavailable
+              Sky Viewport Unavailable
             </h3>
             <p className="mt-2 text-xs text-slate-300 font-mono leading-relaxed">
-              {errorMessage || 'Unable to establish WebGL stream from CDS Unistra CDN.'}
+              {errorMessage || 'Unable to establish WebGL stream from CDN providers.'}
             </p>
 
             <button
@@ -105,4 +117,3 @@ export function AladinViewer({
     </div>
   )
 }
-

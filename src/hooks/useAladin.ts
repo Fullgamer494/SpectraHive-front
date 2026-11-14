@@ -1,6 +1,6 @@
 // Assisted by Antigravity (SI) — reviewed by Luissmont
 import { useEffect, useRef, useState, useCallback } from 'react'
-import type { AladinInstance, AladinStatic } from '../types/aladin'
+import type { AladinInstance, AladinStatic, AladinClickEvent } from '../types/aladin'
 import { DEFAULT_ALADIN_SURVEY } from '../lib/constants'
 
 export type AladinStatus = 'idle' | 'loading' | 'ready' | 'error'
@@ -12,6 +12,10 @@ export interface UseAladinOptions {
   survey?: string
   showReticle?: boolean
   showLayersControl?: boolean
+  onPositionChange?: (ra: number, dec: number) => void
+  onZoomChange?: (fov: number) => void
+  onClickCoordinates?: (ra: number, dec: number) => void
+  onHoverCoordinates?: (ra: number, dec: number) => void
 }
 
 export interface UseAladinResult {
@@ -30,8 +34,25 @@ export function useAladin(
   const aladinRef = useRef<AladinInstance | null>(null)
   const [retryCounter, setRetryCounter] = useState(0)
 
+  // Track commanded coordinates to avoid fighting Aladin's own gestures
+  const lastCommandedRef = useRef<{ ra: number; dec: number; fov: number } | null>(null)
+
+  // Stable callback refs
+  const onPositionChangeRef = useRef(options.onPositionChange)
+  onPositionChangeRef.current = options.onPositionChange
+
+  const onZoomChangeRef = useRef(options.onZoomChange)
+  onZoomChangeRef.current = options.onZoomChange
+
+  const onClickCoordinatesRef = useRef(options.onClickCoordinates)
+  onClickCoordinatesRef.current = options.onClickCoordinates
+
+  const onHoverCoordinatesRef = useRef(options.onHoverCoordinates)
+  onHoverCoordinatesRef.current = options.onHoverCoordinates
+
   const retry = useCallback(() => {
     aladinRef.current = null
+    lastCommandedRef.current = null
     setErrorMessage(null)
     setStatus('loading')
     if (typeof window !== 'undefined' && window.__loadAladinLite) {
@@ -96,6 +117,63 @@ export function useAladin(
           fullScreen: false,
         })
 
+        // Initialize last commanded tracking
+        lastCommandedRef.current = {
+          ra: options.ra,
+          dec: options.dec,
+          fov: options.fov,
+        }
+
+        // 1. Hook into position changes (pan / drag)
+        instance.on('positionChanged', (...args: unknown[]) => {
+          let newRa: number | undefined
+          let newDec: number | undefined
+
+          if (typeof args[0] === 'number' && typeof args[1] === 'number') {
+            newRa = args[0]
+            newDec = args[1]
+          } else if (args[0] && typeof (args[0] as { ra?: number }).ra === 'number') {
+            newRa = (args[0] as { ra: number }).ra
+            newDec = (args[0] as { dec: number }).dec
+          } else {
+            const current = instance.getRaDec()
+            if (current) {
+              newRa = current[0]
+              newDec = current[1]
+            }
+          }
+
+          if (typeof newRa === 'number' && typeof newDec === 'number') {
+            // Update tracking to prevent feedback loop
+            if (lastCommandedRef.current) {
+              lastCommandedRef.current.ra = newRa
+              lastCommandedRef.current.dec = newDec
+            }
+            onPositionChangeRef.current?.(newRa, newDec)
+          }
+        })
+
+        // 2. Hook into zoom changes (mouse wheel / zoom gesture)
+        instance.on('zoomChanged', () => {
+          const fovPair = instance.getFov()
+          if (fovPair && typeof fovPair[0] === 'number') {
+            const currentFov = fovPair[0]
+            if (lastCommandedRef.current) {
+              lastCommandedRef.current.fov = currentFov
+            }
+            onZoomChangeRef.current?.(currentFov)
+          }
+        })
+
+        // 3. Hook into click on sky / stars (RF-10)
+        instance.on('click', (...args: unknown[]) => {
+          const clickData = args[0] as AladinClickEvent | undefined
+          if (clickData && typeof clickData.ra === 'number' && typeof clickData.dec === 'number') {
+            console.log('[AladinLite] Sky clicked at celestial coords:', clickData.ra, clickData.dec)
+            onClickCoordinatesRef.current?.(clickData.ra, clickData.dec)
+          }
+        })
+
         if (!isCancelled) {
           aladinRef.current = instance
           setStatus('ready')
@@ -132,15 +210,37 @@ export function useAladin(
     }
   }, [containerRef, retryCounter, options.survey, options.showReticle, options.showLayersControl])
 
-  // React to coordinate / FOV updates once initialized
+  // React to commanded coordinate / FOV updates ONLY when explicitly changed from HUD
   useEffect(() => {
-    if (status === 'ready' && aladinRef.current) {
+    if (status !== 'ready' || !aladinRef.current) return
+
+    const last = lastCommandedRef.current
+    const raDiff = last ? Math.abs(last.ra - options.ra) : 1
+    const decDiff = last ? Math.abs(last.dec - options.dec) : 1
+    const fovDiff = last ? Math.abs(last.fov - options.fov) : 1
+
+    // If coordinates significantly differ from internal position, smoothly move camera
+    if (raDiff > 0.0001 || decDiff > 0.0001) {
       try {
         aladinRef.current.gotoRaDec(options.ra, options.dec)
-        aladinRef.current.setFov(options.fov)
       } catch (err) {
         console.warn('[AladinLite] Error updating viewport position:', err)
       }
+    }
+
+    // If FOV was changed by user button (1° or 2°), set FOV
+    if (fovDiff > 0.01) {
+      try {
+        aladinRef.current.setFov(options.fov)
+      } catch (err) {
+        console.warn('[AladinLite] Error updating viewport FOV:', err)
+      }
+    }
+
+    lastCommandedRef.current = {
+      ra: options.ra,
+      dec: options.dec,
+      fov: options.fov,
     }
   }, [options.ra, options.dec, options.fov, status])
 
@@ -155,6 +255,34 @@ export function useAladin(
       }
     }
   }, [options.survey, status])
+
+  // Mousemove event listener for real-time cursor celestial coordinates
+  useEffect(() => {
+    const container = containerRef.current
+    if (!container || status !== 'ready') return
+
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!aladinRef.current || !aladinRef.current.pix2world) return
+
+      const rect = container.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+
+      try {
+        const worldCoords = aladinRef.current.pix2world(x, y)
+        if (worldCoords && typeof worldCoords[0] === 'number' && typeof worldCoords[1] === 'number') {
+          onHoverCoordinatesRef.current?.(worldCoords[0], worldCoords[1])
+        }
+      } catch {
+        // Ignore edge coordinate projection errors
+      }
+    }
+
+    container.addEventListener('mousemove', handleMouseMove, { passive: true })
+    return () => {
+      container.removeEventListener('mousemove', handleMouseMove)
+    }
+  }, [status, containerRef])
 
   return {
     status,

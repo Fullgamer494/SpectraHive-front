@@ -1,2 +1,14 @@
 @import "tailwindcss";
 
+/* 
+ * Hide lingering internal Aladin Lite v3 loading labels and badges.
+ * SpectraHive manages its own high-res glassmorphic radar loader.
+ */
+#aladin-lite-div .aladin-loading,
+#aladin-lite-div .aladin-box-loading,
+#aladin-lite-div .aladin-layer-loading,
+#aladin-lite-div .aladin-loading-label,
+#aladin-lite-div div[class*="loading"],
+#aladin-lite-div span[class*="loading"] {
+  display: none !important;
+}

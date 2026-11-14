@@ -1,6 +1,7 @@
 // Assisted by Antigravity (SI) — reviewed by Luissmont
 import type { TargetCoordinates } from '../../types/quadrant'
 import { HIPS_SURVEYS } from '../../lib/constants'
+import { raDegToSexagesimal, decDegToSexagesimal } from '../../lib/coordinates'
 
 interface HudHeaderProps {
   coordinates: TargetCoordinates
@@ -52,7 +53,7 @@ export function HudHeader({
       </div>
 
       {/* Target Telemetry Display */}
-      <div className="hidden sm:flex items-center gap-4 rounded-xl bg-slate-900/40 px-3 py-1.5 border border-white/5 font-mono text-xs">
+      <div className="hidden sm:flex items-center gap-4 rounded-xl bg-slate-900/40 px-3.5 py-1.5 border border-white/5 font-mono text-xs">
         <div>
           <span className="text-slate-500 text-[10px] uppercase block">Target</span>
           <span className="text-slate-200 font-semibold">
@@ -75,11 +76,16 @@ export function HudHeader({
         <div className="h-6 w-px bg-white/10" />
 
         <div>
-          <span className="text-slate-500 text-[10px] uppercase block">Coordinates</span>
-          <span className="text-cyan-300">
-            {coordinates.ra.toFixed(4)}°, {coordinates.dec >= 0 ? '+' : ''}
-            {coordinates.dec.toFixed(4)}°
-          </span>
+          <span className="text-slate-500 text-[10px] uppercase block">Coordinates (Dec / Sexag)</span>
+          <div className="flex items-baseline gap-2">
+            <span className="text-cyan-300 font-semibold">
+              {coordinates.ra.toFixed(4)}°, {coordinates.dec >= 0 ? '+' : ''}
+              {coordinates.dec.toFixed(4)}°
+            </span>
+            <span className="text-[10px] text-cyan-400/70 font-mono hidden md:inline">
+              ({raDegToSexagesimal(coordinates.ra)} {decDegToSexagesimal(coordinates.dec)})
+            </span>
+          </div>
         </div>
       </div>
 

@@ -16,13 +16,27 @@ export interface AladinOptions {
   fullScreen?: boolean
 }
 
+export interface AladinClickEvent {
+  ra?: number
+  dec?: number
+  x?: number
+  y?: number
+  data?: unknown
+}
+
 export interface AladinInstance {
   gotoRaDec: (ra: number, dec: number) => void
   setFov: (fovInDegrees: number) => void
   getFov: () => [number, number]
   getRaDec: () => [number, number]
-  setBaseImageLayer: (survey: string) => void
+  setBaseImageLayer: (survey: string | unknown) => void
   getBaseImageLayer: () => unknown
+  pix2world?: (x: number, y: number) => [number, number] | null
+  world2pix?: (ra: number, dec: number) => [number, number] | null
+  on: (
+    event: 'positionChanged' | 'zoomChanged' | 'click' | 'select' | 'mouseMove',
+    callback: (...args: unknown[]) => void
+  ) => void
   destroy?: () => void
 }
 
