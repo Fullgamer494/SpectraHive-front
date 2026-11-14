@@ -1,6 +1,6 @@
 // Assisted by Antigravity (SI) — reviewed by Luissmont
 import { useEffect, useRef, useState, useCallback } from 'react'
-import type { AladinInstance, AladinStatic, AladinClickEvent } from '../types/aladin'
+import type { AladinInstance, AladinStatic, AladinClickEvent, AladinCatalog } from '../types/aladin'
 import { DEFAULT_ALADIN_SURVEY } from '../lib/constants'
 
 export type AladinStatus = 'idle' | 'loading' | 'ready' | 'error'
@@ -12,6 +12,7 @@ export interface UseAladinOptions {
   survey?: string
   showReticle?: boolean
   showLayersControl?: boolean
+  selectedCoordinates?: { ra: number; dec: number } | null
   onPositionChange?: (ra: number, dec: number) => void
   onZoomChange?: (fov: number) => void
   onClickCoordinates?: (ra: number, dec: number) => void
@@ -32,6 +33,7 @@ export function useAladin(
   const [status, setStatus] = useState<AladinStatus>('loading')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const aladinRef = useRef<AladinInstance | null>(null)
+  const catalogRef = useRef<AladinCatalog | null>(null)
   const [retryCounter, setRetryCounter] = useState(0)
 
   // Track commanded coordinates to avoid fighting Aladin's own gestures
@@ -52,6 +54,7 @@ export function useAladin(
 
   const retry = useCallback(() => {
     aladinRef.current = null
+    catalogRef.current = null
     lastCommandedRef.current = null
     setErrorMessage(null)
     setStatus('loading')
@@ -117,6 +120,24 @@ export function useAladin(
           fullScreen: false,
         })
 
+        // Initialize target marker catalog layer (for RF-10 click target locking)
+        if (A.catalog) {
+          try {
+            const targetCatalog = A.catalog({
+              name: 'Candidate Marker',
+              color: '#10b981',
+              sourceSize: 20,
+              shape: 'circle',
+              displayLabel: true,
+              labelColumn: 'label',
+            })
+            instance.addCatalog(targetCatalog)
+            catalogRef.current = targetCatalog
+          } catch (catalogErr) {
+            console.warn('[AladinLite] Catalog layer creation failed:', catalogErr)
+          }
+        }
+
         // Initialize last commanded tracking
         lastCommandedRef.current = {
           ra: options.ra,
@@ -144,7 +165,6 @@ export function useAladin(
           }
 
           if (typeof newRa === 'number' && typeof newDec === 'number') {
-            // Update tracking to prevent feedback loop
             if (lastCommandedRef.current) {
               lastCommandedRef.current.ra = newRa
               lastCommandedRef.current.dec = newDec
@@ -204,6 +224,7 @@ export function useAladin(
         }
         aladinRef.current = null
       }
+      catalogRef.current = null
       if (containerRef.current) {
         containerRef.current.innerHTML = ''
       }
@@ -219,7 +240,6 @@ export function useAladin(
     const decDiff = last ? Math.abs(last.dec - options.dec) : 1
     const fovDiff = last ? Math.abs(last.fov - options.fov) : 1
 
-    // If coordinates significantly differ from internal position, smoothly move camera
     if (raDiff > 0.0001 || decDiff > 0.0001) {
       try {
         aladinRef.current.gotoRaDec(options.ra, options.dec)
@@ -228,7 +248,6 @@ export function useAladin(
       }
     }
 
-    // If FOV was changed by user button (1° or 2°), set FOV
     if (fovDiff > 0.01) {
       try {
         aladinRef.current.setFov(options.fov)
@@ -243,6 +262,28 @@ export function useAladin(
       fov: options.fov,
     }
   }, [options.ra, options.dec, options.fov, status])
+
+  // Synchronize target marker pinned on clicked coordinates
+  useEffect(() => {
+    const catalog = catalogRef.current
+    if (!catalog || status !== 'ready' || !window.A?.source) return
+
+    try {
+      catalog.clean?.()
+      catalog.clear?.()
+
+      if (options.selectedCoordinates) {
+        const src = window.A.source(
+          options.selectedCoordinates.ra,
+          options.selectedCoordinates.dec,
+          { label: 'CANDIDATE' }
+        )
+        catalog.addSources([src])
+      }
+    } catch (err) {
+      console.warn('[AladinLite] Error synchronizing target candidate marker:', err)
+    }
+  }, [options.selectedCoordinates, status])
 
   // React to dynamic survey changes
   useEffect(() => {

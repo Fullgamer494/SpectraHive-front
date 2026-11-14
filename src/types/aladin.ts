@@ -24,6 +24,21 @@ export interface AladinClickEvent {
   data?: unknown
 }
 
+export interface AladinSource {
+  ra: number
+  dec: number
+  data?: Record<string, unknown>
+}
+
+export interface AladinCatalog {
+  addSources: (sources: AladinSource[]) => void
+  remove?: (source: AladinSource) => void
+  clean?: () => void
+  clear?: () => void
+  hide?: () => void
+  show?: () => void
+}
+
 export interface AladinInstance {
   gotoRaDec: (ra: number, dec: number) => void
   setFov: (fovInDegrees: number) => void
@@ -31,6 +46,7 @@ export interface AladinInstance {
   getRaDec: () => [number, number]
   setBaseImageLayer: (survey: string | unknown) => void
   getBaseImageLayer: () => unknown
+  addCatalog: (catalog: AladinCatalog) => void
   pix2world?: (x: number, y: number) => [number, number] | null
   world2pix?: (ra: number, dec: number) => [number, number] | null
   on: (
@@ -46,6 +62,15 @@ export interface AladinStatic {
     container: HTMLElement | string,
     options?: AladinOptions
   ) => AladinInstance
+  catalog?: (options?: {
+    name?: string
+    color?: string
+    sourceSize?: number
+    shape?: string
+    displayLabel?: boolean
+    labelColumn?: string
+  }) => AladinCatalog
+  source?: (ra: number, dec: number, data?: Record<string, unknown>) => AladinSource
 }
 
 declare global {

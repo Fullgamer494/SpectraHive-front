@@ -59,10 +59,22 @@ export default function App() {
     setLiveFov(fov)
   }, [])
 
-  // Event handler for clicking on any celestial coordinate
+  // Event handler for clicking on any celestial coordinate (RF-10)
   const handleClickCoordinates = useCallback((ra: number, dec: number) => {
     setClickedCoords({ ra, dec })
   }, [])
+
+  // Event handler for centering camera directly on the selected target
+  const handleCenterOnSelected = useCallback(() => {
+    if (clickedCoords) {
+      setCommandedCoords((prev) => ({
+        ...prev,
+        ra: clickedCoords.ra,
+        dec: clickedCoords.dec,
+      }))
+      setLiveCenter({ ra: clickedCoords.ra, dec: clickedCoords.dec })
+    }
+  }, [clickedCoords])
 
   // Event handler for hovering over the sky canvas
   const handleHoverCoordinates = useCallback((ra: number, dec: number) => {
@@ -76,6 +88,7 @@ export default function App() {
         <AladinViewer
           coordinates={commandedCoords}
           survey={activeSurvey}
+          selectedCoordinates={clickedCoords}
           onPositionChange={handlePositionChange}
           onZoomChange={handleZoomChange}
           onClickCoordinates={handleClickCoordinates}
@@ -110,16 +123,17 @@ export default function App() {
             clickedCoords={clickedCoords}
             activeObject={activeObject}
             onClearClicked={() => setClickedCoords(null)}
+            onCenterOnSelected={handleCenterOnSelected}
           />
 
           {/* Mission Status Badge */}
           <div className="pointer-events-auto rounded-xl bg-slate-950/60 backdrop-blur-md border border-white/10 px-3.5 py-2 font-mono text-[10px] text-slate-400 shadow-lg hidden sm:block">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-slate-200 font-semibold">STAGE 01: FLUID VIEWPORT</span>
+              <span className="text-slate-200 font-semibold">STAGE 01: TARGET LOCK ACTIVE</span>
             </div>
             <p className="text-slate-500 mt-0.5">
-              Wheel zoom enabled • Click star to lock coords • Drag to pan
+              Click any star to lock coordinates with green celestial pin
             </p>
           </div>
         </div>

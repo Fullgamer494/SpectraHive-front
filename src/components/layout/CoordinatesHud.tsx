@@ -9,6 +9,7 @@ interface CoordinatesHudProps {
   clickedCoords: { ra: number; dec: number } | null
   activeObject?: TestObject
   onClearClicked?: () => void
+  onCenterOnSelected?: () => void
 }
 
 export function CoordinatesHud({
@@ -18,6 +19,7 @@ export function CoordinatesHud({
   clickedCoords,
   activeObject,
   onClearClicked,
+  onCenterOnSelected,
 }: CoordinatesHudProps) {
   const displayFov = currentFov ?? centerCoords.fov
 
@@ -103,14 +105,27 @@ export function CoordinatesHud({
             <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
             Selected Sky Target
           </span>
-          {clickedCoords && onClearClicked && (
-            <button
-              type="button"
-              onClick={onClearClicked}
-              className="text-[9px] text-slate-400 hover:text-slate-200 underline cursor-pointer"
-            >
-              Reset
-            </button>
+          {clickedCoords && (
+            <div className="flex items-center gap-2">
+              {onCenterOnSelected && (
+                <button
+                  type="button"
+                  onClick={onCenterOnSelected}
+                  className="text-[9px] text-cyan-300 hover:text-cyan-100 font-semibold cursor-pointer underline"
+                >
+                  Center View
+                </button>
+              )}
+              {onClearClicked && (
+                <button
+                  type="button"
+                  onClick={onClearClicked}
+                  className="text-[9px] text-slate-400 hover:text-slate-200 underline cursor-pointer"
+                >
+                  Reset
+                </button>
+              )}
+            </div>
           )}
         </div>
 
@@ -129,12 +144,12 @@ export function CoordinatesHud({
               </span>
             </div>
             <p className="text-[9px] text-emerald-400/80 mt-1 italic">
-              Ready for Anomaly Report (RF-10)
+              Target locked on canvas with green celestial pin (RF-10)
             </p>
           </div>
         ) : (
           <p className="text-[10px] text-slate-500 italic">
-            Click any star on canvas to target coordinates
+            Click any star on canvas to lock coordinates
           </p>
         )}
       </div>

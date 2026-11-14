@@ -7,6 +7,7 @@ interface AladinViewerProps {
   coordinates: TargetCoordinates
   survey?: string
   className?: string
+  selectedCoordinates?: { ra: number; dec: number } | null
   onPositionChange?: (ra: number, dec: number) => void
   onZoomChange?: (fov: number) => void
   onClickCoordinates?: (ra: number, dec: number) => void
@@ -17,6 +18,7 @@ export function AladinViewer({
   coordinates,
   survey,
   className = '',
+  selectedCoordinates,
   onPositionChange,
   onZoomChange,
   onClickCoordinates,
@@ -29,6 +31,7 @@ export function AladinViewer({
     dec: coordinates.dec,
     fov: coordinates.fov,
     survey,
+    selectedCoordinates,
     onPositionChange,
     onZoomChange,
     onClickCoordinates,
