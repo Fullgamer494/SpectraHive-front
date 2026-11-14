@@ -72,3 +72,17 @@ export const TEST_OBJECTS: readonly TestObject[] = [
 
 export const DEFAULT_OBJECT = TEST_OBJECTS[0]
 
+/**
+ * Finds if given coordinates match one of the 5 test objects within tolerance.
+ */
+export function findMatchingTestObject(
+  ra: number,
+  dec: number,
+  toleranceDeg = 0.5
+): TestObject | undefined {
+  return TEST_OBJECTS.find((obj) => {
+    const raDiff = Math.abs(obj.ra - ra)
+    const decDiff = Math.abs(obj.dec - dec)
+    return raDiff <= toleranceDeg && decDiff <= toleranceDeg
+  })
+}
