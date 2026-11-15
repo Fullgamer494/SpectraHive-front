@@ -17,7 +17,7 @@ const STATUS_LABELS = { pendiente: 'Pending', confirmado: 'Confirmed', descartad
 
 export function QuadrantQueueNav({ quadrants, currentIndex, activeQuadrant, isLoading = false, onNext, onPrev, onSelectIndex }: QuadrantQueueNavProps) {
   return (
-    <nav className="workspace-queue" aria-label="Quadrant queue" aria-busy={isLoading}>
+    <nav className="workspace-queue" aria-label="Quadrant queue" aria-busy={isLoading} data-tutorial="queue">
       <div className="workspace-queue-summary" aria-live="polite">
         <span className="workspace-eyebrow">OBSERVATION QUEUE</span>
         <span>{isLoading ? 'Loading fields…' : quadrants.length ? `${String(currentIndex + 1).padStart(2, '0')} / ${String(quadrants.length).padStart(2, '0')}` : 'No fields available'}</span>

@@ -12,6 +12,8 @@ import { CoordinatesHud } from './components/layout/CoordinatesHud'
 import { ReportModal } from './components/report/ReportModal'
 import { CosmicDnaViewer } from './components/adn/CosmicDnaViewer'
 import { UrlErrorBanner } from './components/ui/UrlErrorBanner'
+import { GuidedTutorial } from './components/tutorial/GuidedTutorial'
+import { useGuidedTutorial } from './hooks/useGuidedTutorial'
 import { useUrlState } from './hooks/useUrlState'
 import { useQuadrants } from './hooks/useQuadrants'
 import { useReport } from './hooks/useReport'
@@ -26,6 +28,7 @@ export default function App() {
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false)
   const [reportPresetType, setReportPresetType] = useState<AnomalyType | null>(null)
   const [isDnaModalOpen, setIsDnaModalOpen] = useState<boolean>(false)
+  const tutorial = useGuidedTutorial()
 
   // Reporting and Simulated Consensus hook (RF-10, RF-11, RF-12, RF-13)
   const reportState = useReport()
@@ -188,14 +191,16 @@ export default function App() {
 
   // Report modal handlers (RF-10, RF-11, RF-12, RF-13)
   const handleOpenReport = useCallback(() => {
+    tutorial.close()
     setReportPresetType(null)
     setIsReportModalOpen(true)
-  }, [])
+  }, [tutorial.close])
 
   const handleMarkClean = useCallback(() => {
+    tutorial.close()
     setReportPresetType('limpio')
     setIsReportModalOpen(true)
-  }, [])
+  }, [tutorial.close])
 
   const handleReportSuccess = useCallback(
     (quadrantId: string, tipo: AnomalyType) => {
@@ -248,12 +253,13 @@ export default function App() {
         activeSurvey={activeSurvey}
         onSurveyChange={setActiveSurvey}
         onFovChange={handleFovChange}
+        onOpenTutorial={tutorial.start}
       />
       {urlError && <UrlErrorBanner message={urlError} onDismiss={clearUrlError} />}
       <div className="workspace-body">
-        <WorkspaceNav onFocusSection={focusSection} onOpenDna={() => setIsDnaModalOpen(true)} />
+        <WorkspaceNav onFocusSection={focusSection} onOpenDna={() => { tutorial.close(); setIsDnaModalOpen(true) }} />
         <aside className="workspace-context" aria-label="Targets and sky details">
-          <section id="panel-targets" className="context-section" tabIndex={-1} aria-labelledby="targets-title">
+          <section id="panel-targets" className="context-section" tabIndex={-1} aria-labelledby="targets-title" data-tutorial="targets">
             <div className="workspace-panel-heading"><h2 id="targets-title">Test objects</h2><span className="module-index">01</span></div>
             <TestObjectShortcuts activeObjectId={activeObject?.id} onSelectObject={handleSelectTestObject} />
           </section>
@@ -303,7 +309,7 @@ export default function App() {
               onSelectTargetCoords={handleSelectTargetCoords}
               onOpenReport={handleOpenReport}
               onMarkClean={handleMarkClean}
-              onOpenDna={() => setIsDnaModalOpen(true)}
+              onOpenDna={() => { tutorial.close(); setIsDnaModalOpen(true) }}
             />
           </aside>
       </div>
@@ -337,6 +343,7 @@ export default function App() {
         onClose={() => setIsDnaModalOpen(false)}
         objectName={activeQuadrant?.nombre ?? activeObject?.name}
       />
+      {!isReportModalOpen && !isDnaModalOpen && <GuidedTutorial stepIndex={tutorial.stepIndex} onNext={tutorial.next} onBack={tutorial.back} onClose={tutorial.close} />}
     </div>
   )
 }

@@ -117,8 +117,8 @@ export function BlinkViewer({
         <p className="inspector-target">{isMotion ? 'Compare object position between epochs.' : tipoPrueba === 'brillo' ? 'Compare brightness between epochs; position stays fixed.' : 'Compare the same field across two epochs.'}</p>
       </header>
       <div className="inspector-modes" role="group" aria-label="Analysis mode">
-        <button type="button" aria-pressed={activeTab === 'blink'} onClick={() => setActiveTab('blink')}><Repeat2 aria-hidden="true" /> Blink A / B</button>
-        <button type="button" aria-pressed={activeTab === 'diff'} onClick={() => setActiveTab('diff')}><Minus aria-hidden="true" /> Difference |B − A|</button>
+        <button type="button" aria-pressed={activeTab === 'blink'} onClick={() => setActiveTab('blink')} data-tutorial="blink"><Repeat2 aria-hidden="true" /> Blink A / B</button>
+        <button type="button" aria-pressed={activeTab === 'diff'} onClick={() => setActiveTab('diff')} data-tutorial="difference"><Minus aria-hidden="true" /> Difference |B − A|</button>
       </div>
       {activeTab === 'diff' ? (
         <DiffViewer cuadranteId={cuadranteId} epocaA={epocaA} epocaB={epocaB} onSelectCandidate={onSelectCandidate} />
@@ -149,7 +149,7 @@ export function BlinkViewer({
         <dl><div><dt>Right ascension</dt><dd>{ra.toFixed(4)}<small>°</small></dd></div><div><dt>Declination</dt><dd>{dec >= 0 ? '+' : ''}{dec.toFixed(4)}<small>°</small></dd></div></dl>
         <p>{tipoPrueba ? (isMotion ? 'Look for a shift in position between epochs.' : 'Look for a change in brightness, not position.') : 'Compare the same field across two epochs.'} <span>False color: percentiles 1–99.</span></p>
       </div>
-      <footer className="inspector-actions">
+      <footer className="inspector-actions" data-tutorial="report">
         <button type="button" className="action-primary" onClick={onOpenReport}><Flag aria-hidden="true" /> Report anomaly</button>
         <div><button type="button" onClick={onMarkClean}><ShieldCheck aria-hidden="true" /> Mark clean</button><button type="button" onClick={onOpenDna}><ChartNoAxesColumn aria-hidden="true" /> Cosmic DNA</button></div>
       </footer>

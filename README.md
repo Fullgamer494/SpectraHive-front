@@ -40,6 +40,7 @@ Declaración de herramientas de IA usadas en este módulo (se reporta en la entr
 | --- | --- | --- |
 | Codex | Análisis de arquitectura y mapa para agentes en `docs/resumen-arquitectura-frontend.md` | pendiente |
 | Codex | Plan de implementación del tutorial guiado en `docs/plan-tutorial-guiado.md` | pendiente |
+| Codex | Tour interactivo de ocho pasos para el uso de la interfaz, con anclas, navegación y reapertura | pendiente |
 | Codex | Investigación de referencias y dirección para el rediseño en `docs/investigacion-referencias-redisenio.md` | pendiente |
 | Codex | Mockups de tres direcciones visuales en `docs/visuals/opciones-estilo.html` | pendiente |
 | Codex | Tema NOCTRA: superficies rectas, paleta desaturada y tipografía pixel-serifa Kodus Pixel en títulos | pendiente |

@@ -19,7 +19,7 @@ export function WorkspaceNav({ onFocusSection, onOpenDna }: WorkspaceNavProps) {
       <button id="nav-inspector" type="button" aria-controls="panel-inspector" onClick={() => onFocusSection('inspector')}>
         <PanelsTopLeft className="workspace-nav-icon" aria-hidden="true" /><span>Inspector</span>
       </button>
-      <button type="button" onClick={onOpenDna} aria-haspopup="dialog">
+      <button type="button" onClick={onOpenDna} aria-haspopup="dialog" data-tutorial="dna">
         <ChartNoAxesColumn className="workspace-nav-icon" aria-hidden="true" /><span>Cosmic DNA</span>
       </button>
     </nav>
