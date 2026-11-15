@@ -17,6 +17,7 @@ interface BlinkViewerProps {
   onSelectTargetCoords?: (coords: { ra: number; dec: number }) => void
   onOpenReport?: () => void
   onMarkClean?: () => void
+  onOpenDna?: () => void
   onClose?: () => void
 }
 
@@ -33,6 +34,7 @@ export function BlinkViewer({
   onSelectTargetCoords,
   onOpenReport,
   onMarkClean,
+  onOpenDna,
   onClose,
 }: BlinkViewerProps) {
   const [activeTab, setActiveTab] = useState<'blink' | 'diff'>('blink')
@@ -401,7 +403,7 @@ export function BlinkViewer({
         </>
       )}
 
-      {/* 4. Action Bar: Report Anomaly or Mark Clean (RF-10, RF-11) */}
+      {/* 4. Action Bar: Report Anomaly or Mark Clean (RF-10, RF-11, RF-14) */}
       <div className="p-3 bg-slate-950/95 border-t border-white/10 flex gap-2">
         <button
           type="button"
@@ -417,6 +419,14 @@ export function BlinkViewer({
           title="Mark Quadrant Clean"
         >
           <span>🛡️ Clean</span>
+        </button>
+        <button
+          type="button"
+          onClick={onOpenDna}
+          className="py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 hover:text-white border border-cyan-500/40 font-semibold text-xs font-mono tracking-wider uppercase transition-all flex items-center justify-center gap-1 cursor-pointer"
+          title="View Cosmic DNA Spectral Fingerprint"
+        >
+          <span>🧬 DNA</span>
         </button>
       </div>
 

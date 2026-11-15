@@ -7,6 +7,7 @@ import { QuadrantQueueNav } from './components/layout/QuadrantQueueNav'
 import { TestObjectShortcuts } from './components/search/TestObjectShortcuts'
 import { CoordinatesHud } from './components/layout/CoordinatesHud'
 import { ReportModal } from './components/report/ReportModal'
+import { CosmicDnaViewer } from './components/adn/CosmicDnaViewer'
 import { UrlErrorBanner } from './components/ui/UrlErrorBanner'
 import { useUrlState } from './hooks/useUrlState'
 import { useQuadrants } from './hooks/useQuadrants'
@@ -21,6 +22,7 @@ export default function App() {
   const [isBlinkOpen, setIsBlinkOpen] = useState<boolean>(true)
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false)
   const [reportPresetType, setReportPresetType] = useState<AnomalyType | null>(null)
+  const [isDnaModalOpen, setIsDnaModalOpen] = useState<boolean>(false)
 
   // Reporting and Simulated Consensus hook (RF-10, RF-11, RF-12, RF-13)
   const reportState = useReport()
@@ -287,12 +289,13 @@ export default function App() {
               onSelectTargetCoords={handleSelectTargetCoords}
               onOpenReport={handleOpenReport}
               onMarkClean={handleMarkClean}
+              onOpenDna={() => setIsDnaModalOpen(true)}
               onClose={() => setIsBlinkOpen(false)}
             />
           </div>
         ) : (
           /* Floating reopen pill if closed */
-          <div className="pointer-events-auto fixed right-6 top-48 z-20">
+          <div className="pointer-events-auto fixed right-6 top-48 z-20 flex flex-col gap-2">
             <button
               type="button"
               onClick={() => setIsBlinkOpen(true)}
@@ -300,6 +303,13 @@ export default function App() {
             >
               <span className="h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
               <span>OPEN SPHEREx INSPECTOR</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsDnaModalOpen(true)}
+              className="flex items-center gap-2 rounded-2xl bg-slate-950/80 backdrop-blur-md border border-amber-500/40 px-3.5 py-1.5 font-mono text-xs text-amber-300 shadow-md hover:bg-slate-900 transition-all cursor-pointer hover:border-amber-400"
+            >
+              <span>🧬 COSMIC DNA</span>
             </button>
           </div>
         )}
@@ -319,11 +329,11 @@ export default function App() {
           {/* Mission Status Badge */}
           <div className="pointer-events-auto rounded-xl bg-slate-950/60 backdrop-blur-md border border-white/10 px-3.5 py-2 font-mono text-[10px] text-slate-400 shadow-lg hidden sm:block">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-              <span className="text-slate-200 font-semibold">STAGE 05: REPORT & CONSENSUS ACTIVE</span>
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-slate-200 font-semibold">STAGE 06: FULL MVP WORKFLOW READY</span>
             </div>
             <p className="text-slate-500 mt-0.5">
-              Anomaly reporting with 3-vote simulated cross-validation consensus (RF-10, RF-12, RF-13)
+              Blink → Diff |B − A| → Report & Consensus → Cosmic DNA (RF-01 to RF-17)
             </p>
           </div>
         </div>
@@ -340,6 +350,14 @@ export default function App() {
         initialType={reportPresetType}
         reportState={reportState}
         onReportSuccess={handleReportSuccess}
+        onOpenDna={() => setIsDnaModalOpen(true)}
+      />
+
+      {/* Cosmic DNA Visual Spectral Barcode Viewer (RF-14, RF-15) */}
+      <CosmicDnaViewer
+        isOpen={isDnaModalOpen}
+        onClose={() => setIsDnaModalOpen(false)}
+        objectName={activeQuadrant?.nombre ?? activeObject?.name}
       />
     </div>
   )
