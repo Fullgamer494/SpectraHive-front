@@ -47,4 +47,5 @@ Declaración de herramientas de IA usadas en este módulo (se reporta en la entr
 | Codex | Iconografía Lucide React en navegación, inspector, reportes y ADN; eliminación de emojis de la interfaz | pendiente |
 | Codex | Revisión NOCTRA: jerarquía tipográfica, Inspector integrado, controles centrados, temas claro/oscuro persistentes y lectura de bandas ADN | pendiente |
 | Codex | Marco perimetral de ingeniería, paneles desplegados, Outfit local, temas tácticos y estilos organizados por módulo | pendiente |
+| Codex | Workspace de observación centrado en el mapa, HUD con coordenadas explicadas y tema oscuro de base | pendiente |
 | _por completar_ | | |

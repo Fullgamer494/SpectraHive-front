@@ -1,20 +1,20 @@
 <!-- Assisted by Codex (SI) — reviewed by pendiente -->
 
-# HUD de ingeniería / minimalismo táctico
+# Workspace oscuro centrado en el mapa
 
-Dirección vigente desde el 15 de noviembre de 2026. Sustituye la exploración visual NOCTRA y la tipografía pixelada; conserva el flujo científico definido en `docs/spec/00-contexto-general.md`.
+Dirección vigente desde la revisión del workspace: fondo negro y grafito, mapa como superficie dominante y lecturas del HUD explicadas con lenguaje directo. Sustituye la cuadrícula anterior; conserva el flujo científico definido en `docs/spec/00-contexto-general.md`.
 
 ## Distribución conservada
 
 | Zona | Contenido | Comportamiento |
 | --- | --- | --- |
-| Superior | Marca, objeto activo, capa de cielo, FOV y tema | Dos filas sólidas; capa/FOV centrados. |
-| Izquierda | Accesos de herramientas, objetos de prueba y coordenadas | Paneles desplegados, sin drawers ni superposición sobre el cielo. Los accesos llevan el foco a cada sección. |
-| Centro | Aladin, etiqueta del contexto y lectura de coordenadas | Celda propia; el canvas no se extiende detrás de los paneles. |
-| Derecha | Inspector: Blink/Diff, épocas, datos y reporte | Columna anclada y desplazamiento vertical propio. |
-| Inferior | Cola de cuadrantes, estado y anterior/siguiente | Barra anclada al borde inferior. |
+| Superior | Marca, objeto activo, capa de cielo, FOV y tema | Una franja compacta; libera altura para el mapa. |
+| Izquierda | Accesos, cinco objetos y coordenadas | Rail estrecho y panel de lectura compacto; conserva todos los puntos de acceso. |
+| Centro | Aladin, instrucciones de navegación y coordenadas del centro | Columna flexible dominante; más ancho disponible para arrastrar y explorar. |
+| Derecha | Inspector: Blink/Diff, épocas, datos y reporte | Panel estrecho con desplazamiento propio y superficies oscuras, también al activar tema claro. |
+| Inferior | Cola, estado del campo y anterior/siguiente | Barra compacta y anclada al borde inferior. |
 
-La cuadrícula no se convierte en menús en pantallas pequeñas: conserva una anchura mínima de 1100 px y permite desplazamiento horizontal del documento. Los laterales tienen scroll vertical propio. Este compromiso conserva la posición y disponibilidad de los módulos; requiere revisión visual en dispositivos pequeños.
+Los módulos conservan sus zonas y permanecen visibles. La barra superior se reduce a una fila, el rail y los laterales ocupan menos ancho y el mapa toma el espacio restante. En pantallas menores a 1080 px se mantiene desplazamiento horizontal; los laterales tienen scroll vertical propio.
 
 Reportes y ADN siguen abriéndose en sus diálogos existentes, ahora con superficies opacas. No se añadieron áreas ni se cambiaron contratos, datos, rutas de API o dependencia de Aladin.
 
@@ -31,16 +31,16 @@ Outfit variable, almacenada localmente como WOFF2, con licencia SIL OFL incluida
 
 | Función | Tema oscuro | Tema claro |
 | --- | --- | --- |
-| Ink Black / fondo | `#121e23` | `#ecece3` |
-| Dark Teal / panel | `#1a2b31` | `#f5f4ec` |
-| Ash Grey / texto secundario | `#b2bfbb` | `#4c6566` |
-| Air Force Blue / selección | `#2a4653` + borde `#88a9bb` | `#dce9ed` + borde `#567b8e` |
-| Deep Saffron / Bronze / acción principal | `#d8a654` | `#8b571f` |
-| Beige / datos destacados | `#d9ddcf` | `#dbe3d7` |
+| Ink Black / fondo | `#090d10` | `#ecece3` |
+| Graphite / panel | `#11171b` | `#f5f4ec` |
+| Ash Grey / texto secundario | `#aab4b7` | `#4c6566` |
+| Air Force Blue / selección | `#1c3039` + borde `#718b96` | `#dce9ed` + borde `#567b8e` |
+| Bronze / acción principal | `#c8a767` | `#8b571f` |
+| Inspector y datos | Siempre oscuro (`#171f23`) | Siempre oscuro (`#171f23`) |
 | Éxito / limpio | Verde apagado, con texto y etiqueta | Verde apagado, con texto y etiqueta |
 | Error | Rojo tierra y mensaje explícito | Rojo tierra y mensaje explícito |
 
-La acción de reporte se distingue por acento cálido; la selección utiliza azul; limpiar utiliza verde. El estado se comunica también con texto, posición y bordes. Los píxeles de las imágenes científicas no se recolorean. Las barras del ADN usan siete colores desaturados diferenciables.
+El tema oscuro es el predeterminado. La acción de reporte se distingue por bronce; la selección utiliza azul; limpiar utiliza verde. El HUD aclara que RA es posición este-oeste, Dec norte-sur, la lectura bajo el cursor cambia al moverlo y el punto elegido alimenta el reporte. El estado se comunica también con texto y bordes. Los píxeles de las imágenes científicas no se recolorean.
 
 ## Archivos para editar
 
