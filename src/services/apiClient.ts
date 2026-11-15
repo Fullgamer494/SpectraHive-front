@@ -1,9 +1,7 @@
 // Assisted by Antigravity (SI) — reviewed by Luissmont
 import type { HealthResponse } from '../types/api'
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, '') ||
-  'https://spectrahive-api.ilyacori.com'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.trim().replace(/\/+$/, '')
 
 export class ApiError extends Error {
   constructor(
@@ -27,6 +25,10 @@ export async function fetchApi<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
+  if (!API_BASE_URL) {
+    throw new ApiError('VITE_API_BASE_URL is not configured. Set it in the local .env file.')
+  }
+
   const { timeoutMs = 12000, headers, ...restOptions } = options
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
