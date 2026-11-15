@@ -1,6 +1,7 @@
 // Assisted by Antigravity (SI) — reviewed by Luissmont
 import { useState, useCallback, useEffect } from 'react'
 import { AladinViewer } from './components/blink/AladinViewer'
+import { BlinkViewer } from './components/blink/BlinkViewer'
 import { HudHeader } from './components/layout/HudHeader'
 import { QuadrantQueueNav } from './components/layout/QuadrantQueueNav'
 import { TestObjectShortcuts } from './components/search/TestObjectShortcuts'
@@ -14,6 +15,7 @@ import type { TestObject } from './types/quadrant'
 
 export default function App() {
   const [activeSurvey, setActiveSurvey] = useState<string>(DEFAULT_ALADIN_SURVEY)
+  const [isBlinkOpen, setIsBlinkOpen] = useState<boolean>(true)
 
   // 1. Dynamic URL State hook (RF-01, RF-02, RF-03)
   const {
@@ -174,7 +176,7 @@ export default function App() {
       </div>
 
       {/* 2. Dark Space Glassmorphism HUD Overlay (Floating on top) */}
-      <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 sm:p-6">
+      <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 sm:p-6 overflow-hidden">
         {/* Top Section: Mission Header, Quadrant Queue Nav & Test Object Shortcuts */}
         <div className="flex flex-col gap-2.5 max-w-7xl mx-auto w-full">
           {urlError && <UrlErrorBanner message={urlError} onDismiss={clearUrlError} />}
@@ -205,6 +207,32 @@ export default function App() {
           />
         </div>
 
+        {/* Center-Right Floating Dock: SPHEREx Blink Inspector (RF-06) */}
+        {isBlinkOpen ? (
+          <div className="pointer-events-auto fixed right-4 sm:right-6 top-48 z-20 w-80 sm:w-96 max-w-[calc(100vw-2rem)]">
+            <BlinkViewer
+              ra={commandedCoords.ra}
+              dec={commandedCoords.dec}
+              fov={commandedCoords.fov}
+              objectName={activeQuadrant?.nombre ?? activeObject?.name}
+              tipoPrueba={activeQuadrant?.tipo_prueba ?? activeObject?.tipoPrueba}
+              onClose={() => setIsBlinkOpen(false)}
+            />
+          </div>
+        ) : (
+          /* Floating reopen pill if closed */
+          <div className="pointer-events-auto fixed right-6 top-48 z-20">
+            <button
+              type="button"
+              onClick={() => setIsBlinkOpen(true)}
+              className="flex items-center gap-2 rounded-2xl bg-slate-950/80 backdrop-blur-md border border-cyan-500/40 px-3.5 py-2 font-mono text-xs text-cyan-300 shadow-[0_4px_24px_rgba(6,182,212,0.3)] hover:bg-slate-900 transition-all cursor-pointer hover:border-cyan-400"
+            >
+              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
+              <span>OPEN BLINK INSPECTOR</span>
+            </button>
+          </div>
+        )}
+
         {/* Bottom Section: Astrometric Telemetry HUD */}
         <div className="flex flex-wrap items-end justify-between gap-4 max-w-7xl mx-auto w-full">
           <CoordinatesHud
@@ -220,11 +248,11 @@ export default function App() {
           {/* Mission Status Badge */}
           <div className="pointer-events-auto rounded-xl bg-slate-950/60 backdrop-blur-md border border-white/10 px-3.5 py-2 font-mono text-[10px] text-slate-400 shadow-lg hidden sm:block">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-slate-200 font-semibold">STAGE 02: QUEUE SYNC ACTIVE</span>
+              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="text-slate-200 font-semibold">STAGE 03: BLINK INSPECTOR ACTIVE</span>
             </div>
             <p className="text-slate-500 mt-0.5">
-              Queue: {currentIndex + 1} of {quadrants.length} • Connected to FastAPI Backend
+              Epoch A (DR1) ↔ Epoch B (QR3) infrared cutouts from FastAPI
             </p>
           </div>
         </div>
