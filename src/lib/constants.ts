@@ -12,20 +12,19 @@ export const ALLOWED_FOVS: readonly [1, 2] = [1, 2] as const
 
 /**
  * HiPS surveys available for background imagery.
- * ESA and NASA/STScI mirrors use global HTTPS CDNs with open CORS headers,
- * avoiding connectivity timeouts from Strasbourg servers.
+ * Public HiPS mirrors are served over HTTPS and allow cross-origin tile loading.
  */
 export const HIPS_SURVEYS = [
   {
-    id: 'esa-2mass',
-    name: '2MASS Infrared (ESA)',
-    url: 'https://skies.esac.esa.int/2MASSColor',
+    id: 'casda-2mass',
+    name: '2MASS Infrared (CASDA)',
+    url: 'https://casda.csiro.au/hips/2MASS/Color',
     badge: 'IR',
   },
   {
-    id: 'esa-dss',
-    name: 'DSS2 Color (ESA)',
-    url: 'https://skies.esac.esa.int/DSSColor',
+    id: 'casda-dss',
+    name: 'DSS2 Color (CASDA)',
+    url: 'https://casda.csiro.au/hips/DSS2/color',
     badge: 'Optical',
   },
   {
