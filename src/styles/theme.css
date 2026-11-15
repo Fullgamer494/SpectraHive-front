@@ -1,0 +1,74 @@
+/* Assisted by Codex (SI) — reviewed by pendiente */
+@font-face {
+  font-family: 'Outfit';
+  src: url('/fonts/Outfit-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+[data-design="engineering"] {
+  --ui-bg: #121e23;
+  --ui-panel: #1a2b31;
+  --ui-raised: #263d44;
+  --ui-line: #455c63;
+  --ui-text: #e3e7de;
+  --ui-muted: #b2bfbb;
+  --ui-accent: #d8a654;
+  --ui-accent-ink: #19252a;
+  --ui-selection: #2a4653;
+  --ui-selection-line: #88a9bb;
+  --ui-selection-text: #e0edf1;
+  --ui-success: #afc8a6;
+  --ui-success-bg: #2a3d32;
+  --ui-warning: #dec28c;
+  --ui-warning-bg: #453d2c;
+  --ui-error: #e0aea3;
+  --ui-error-bg: #462e2c;
+  --ui-sheet: #d9ddcf;
+  --ui-sheet-text: #1a3035;
+  --ui-sheet-muted: #405b5d;
+  color-scheme: dark;
+  color: var(--ui-text);
+  background: var(--ui-bg);
+  font-family: 'Outfit', Arial, sans-serif;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+}
+[data-design="engineering"][data-theme="light"] {
+  --ui-bg: #ecece3;
+  --ui-panel: #f5f4ec;
+  --ui-raised: #dde4de;
+  --ui-line: #b4c1bd;
+  --ui-text: #192c32;
+  --ui-muted: #4c6566;
+  --ui-accent: #8b571f;
+  --ui-accent-ink: #fffbef;
+  --ui-selection: #dce9ed;
+  --ui-selection-line: #567b8e;
+  --ui-selection-text: #234655;
+  --ui-success: #315d43;
+  --ui-success-bg: #e2ebdd;
+  --ui-warning: #73501e;
+  --ui-warning-bg: #f2e7d0;
+  --ui-error: #8d4035;
+  --ui-error-bg: #f3e1dc;
+  --ui-sheet: #dbe3d7;
+  --ui-sheet-text: #1a3035;
+  --ui-sheet-muted: #405b5d;
+  color-scheme: light;
+}
+.workspace :is(button, input, select) { font: inherit; border-radius: 0; }
+.workspace button { cursor: pointer; }
+.workspace button:disabled { cursor: default; opacity: .5; }
+.workspace :is(button, input, select, summary, [tabindex]):focus-visible { outline: 2px solid var(--ui-accent); outline-offset: -3px; }
+.workspace :is(h1, h2, h3) { font-family: 'Outfit', Arial, sans-serif; font-style: normal; font-weight: 800; letter-spacing: -.025em; }
+.workspace h1 { font-size: 28px; line-height: 1.05; }
+.workspace h2 { font-size: 20px; line-height: 1.15; }
+.workspace h3 { font-size: 14px; }
+.workspace .lucide { width: 17px; height: 17px; display: inline-block; flex-shrink: 0; vertical-align: -3px; stroke-width: 1.6; }
+.workspace :is(button, select) { transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease; }
+@media (prefers-reduced-motion: reduce) {
+  .workspace *, .workspace *::before, .workspace *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

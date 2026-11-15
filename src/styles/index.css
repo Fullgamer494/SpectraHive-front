@@ -1,2 +1,6 @@
+/* Assisted by Codex (SI) — reviewed by pendiente */
 @import "tailwindcss";
-
+@import "./theme.css";
+@import "./workspace.css";
+@import "./inspector.css";
+@import "./compatibility.css";

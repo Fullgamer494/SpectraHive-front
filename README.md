@@ -14,6 +14,7 @@ Flujo: buscar por RA/Dec → Blink Época A ↔ B → resta |B−A| → reportar
 | Requisitos, reglas, contratos (fuente de verdad) | [docs/spec/00-contexto-general.md](docs/spec/00-contexto-general.md) |
 | Contexto por rol (01 = este módulo) | [docs/roles/](docs/roles/) |
 | Propuesta original | [docs/proposal/](docs/proposal/) |
+| Dirección visual y mapa de estilos vigente | [docs/diseno-minimalismo-tactico.md](docs/diseno-minimalismo-tactico.md) |
 | Guía para agentes de IA | [AGENTS.md](AGENTS.md) |
 
 ## Estructura
@@ -37,4 +38,13 @@ Declaración de herramientas de IA usadas en este módulo (se reporta en la entr
 
 | Herramienta | Para qué | Revisado por |
 | --- | --- | --- |
+| Codex | Análisis de arquitectura y mapa para agentes en `docs/resumen-arquitectura-frontend.md` | pendiente |
+| Codex | Plan de implementación del tutorial guiado en `docs/plan-tutorial-guiado.md` | pendiente |
+| Codex | Investigación de referencias y dirección para el rediseño en `docs/investigacion-referencias-redisenio.md` | pendiente |
+| Codex | Mockups de tres direcciones visuales en `docs/visuals/opciones-estilo.html` | pendiente |
+| Codex | Tema NOCTRA: superficies rectas, paleta desaturada y tipografía pixel-serifa Kodus Pixel en títulos | pendiente |
+| Codex | Nueva distribución del workspace: navegación lateral, paneles contextuales, cola numerada y transiciones con movimiento reducido | pendiente |
+| Codex | Iconografía Lucide React en navegación, inspector, reportes y ADN; eliminación de emojis de la interfaz | pendiente |
+| Codex | Revisión NOCTRA: jerarquía tipográfica, Inspector integrado, controles centrados, temas claro/oscuro persistentes y lectura de bandas ADN | pendiente |
+| Codex | Marco perimetral de ingeniería, paneles desplegados, Outfit local, temas tácticos y estilos organizados por módulo | pendiente |
 | _por completar_ | | |

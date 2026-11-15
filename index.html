@@ -5,12 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="SpectraHive (SPHEREx Tracker): citizen science micro-tasks for exploring SPHEREx infrared data." />
     <title>SpectraHive — SPHEREx Tracker</title>
-    <!-- Aladin Lite v3 via CDN (stack: no own HiPS) -->
-    <script defer type="text/javascript" src="https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js" charset="utf-8"></script>
+    <!-- Resilient multi-provider CDN loader for Aladin Lite v3 -->
+    <script type="text/javascript">
+      window.__loadAladinLite = function () {
+        if (window.A) return Promise.resolve(window.A);
+
+        return new Promise(function (resolve, reject) {
+          function tryClassic(url, next) {
+            console.log('[AladinLite] Loading via script:', url);
+            var s = document.createElement('script');
+            s.type = 'text/javascript';
+            s.charset = 'utf-8';
+            s.src = url;
+            s.onload = function () {
+              if (window.A) {
+                console.log('[AladinLite] Script loaded successfully:', url);
+                resolve(window.A);
+              } else {
+                next();
+              }
+            };
+            s.onerror = function () {
+              console.warn('[AladinLite] Script load failed:', url);
+              next();
+            };
+            document.head.appendChild(s);
+          }
+
+          function tryModule(url, next) {
+            console.log('[AladinLite] Loading via ESM import:', url);
+            import(/* @vite-ignore */ url)
+              .then(function (mod) {
+                var A = mod.A || mod.default || mod;
+                if (A && A.aladin) {
+                  window.A = A;
+                  console.log('[AladinLite] ESM loaded successfully from:', url);
+                  resolve(A);
+                } else {
+                  next();
+                }
+              })
+              .catch(function (err) {
+                console.warn('[AladinLite] ESM load failed from:', url, err);
+                next();
+              });
+          }
+
+          // Chain providers in order: CDS primary -> jsDelivr dist -> jsDelivr ESM -> unpkg
+          tryClassic('https://aladin.cds.unistra.fr/AladinLite/api/v3/latest/aladin.js', function () {
+            tryClassic('https://cdn.jsdelivr.net/npm/aladin-lite@3/dist/aladin.js', function () {
+              tryModule('https://cdn.jsdelivr.net/npm/aladin-lite@3/+esm', function () {
+                tryModule('https://unpkg.com/aladin-lite?module', function () {
+                  reject(new Error('All CDN providers for Aladin Lite failed to load.'));
+                });
+              });
+            });
+          });
+        });
+      };
+
+      window.__aladinPromise = window.__loadAladinLite();
+    </script>
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

@@ -1,0 +1,41 @@
+/* Assisted by Codex (SI) — reviewed by pendiente */
+/* Transitional styles for existing report, DNA, URL error and Aladin states. */
+.workspace [class*="bg-slate-950"] { background-color: var(--ui-bg) !important; }
+.workspace [class*="bg-slate-900"] { background-color: var(--ui-panel) !important; }
+.workspace [class*="bg-slate-800"], .workspace [class*="bg-cyan-"], .workspace [class*="bg-blue-"] { background-color: var(--ui-selection) !important; }
+.workspace [class*="text-cyan-"], .workspace [class*="text-blue-"] { color: var(--ui-selection-text) !important; }
+.workspace [class*="bg-amber-"] { background-color: var(--ui-warning-bg) !important; }
+.workspace [class*="text-amber-"] { color: var(--ui-warning) !important; }
+.workspace [class*="bg-emerald-"] { background-color: var(--ui-success-bg) !important; }
+.workspace [class*="text-emerald-"] { color: var(--ui-success) !important; }
+.workspace [class*="bg-rose-"], .workspace [class*="bg-red-"] { background-color: var(--ui-error-bg) !important; }
+.workspace [class*="text-rose-"], .workspace [class*="text-red-"] { color: var(--ui-error) !important; }
+.workspace [class*="border-white/"], .workspace [class*="border-slate-"], .workspace [class*="border-cyan-"], .workspace [class*="border-amber-"], .workspace [class*="border-emerald-"], .workspace [class*="border-rose-"], .workspace [class*="border-red-"] { border-color: var(--ui-line) !important; }
+.workspace [class*="text-slate-100"], .workspace [class*="text-slate-200"], .workspace [class~="text-white"] { color: var(--ui-text) !important; }
+.workspace [class*="text-slate-300"], .workspace [class*="text-slate-400"], .workspace [class*="text-slate-500"] { color: var(--ui-muted) !important; }
+.workspace [class*="font-mono"] { font-family: 'Outfit', Arial, sans-serif; }
+.workspace [class*="rounded"], .workspace [class*="rounded-"] { border-radius: 0 !important; }
+.workspace [class*="shadow"], .workspace [style*="box-shadow"] { box-shadow: none !important; }
+.workspace [class*="backdrop-blur"] { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; }
+.workspace [class*="animate-pulse"], .workspace [class*="animate-ping"] { animation: none !important; }
+.workspace [class*="bg-gradient"] { background-image: none !important; background-color: var(--ui-selection) !important; }
+.workspace button[class*="bg-gradient"], .workspace button[class~="bg-cyan-400"] { background: var(--ui-accent) !important; color: var(--ui-accent-ink) !important; border-color: var(--ui-accent) !important; }
+.workspace [role="dialog"] { background-color: var(--ui-bg) !important; padding: 0; }
+.workspace [role="dialog"] > div { max-height: 100dvh; border-color: var(--ui-line) !important; }
+.workspace [role="dialog"] h2 { font-size: 24px; }
+.workspace [role="dialog"] h3 { font-size: 20px; }
+/* Remove duplicated library status text; loading and errors remain explicit in React. */
+#aladin-lite-div .aladin-loading,
+#aladin-lite-div .aladin-box-loading,
+#aladin-lite-div .aladin-layer-loading,
+#aladin-lite-div .aladin-loading-label,
+#aladin-lite-div div[class*="loading"],
+#aladin-lite-div span[class*="loading"],
+#aladin-lite-div .aladin-location,
+#aladin-lite-div .aladin-box-location,
+#aladin-lite-div .aladin-reticle-location,
+#aladin-lite-div div[class*="location"] { display: none !important; }
+.workspace [class*="text-[9px]"], .workspace [class*="text-[10px]"], .workspace [class*="text-[11px]"] { font-size: 12px; }
+.workspace [class*="accent-cyan-"] { accent-color: var(--ui-selection-line); }
+.workspace [class*="accent-emerald-"] { accent-color: var(--ui-success); }
+.workspace [class*="accent-amber-"] { accent-color: var(--ui-warning); }
