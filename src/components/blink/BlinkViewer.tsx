@@ -1,5 +1,5 @@
 // Assisted by Antigravity (SI) — reviewed by Luissmont
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useBlink } from '../../hooks/useBlink'
 import { DiffViewer } from './DiffViewer'
 import type { DiffCandidate } from '../../types/api'
@@ -14,6 +14,7 @@ interface BlinkViewerProps {
   objectName?: string
   tipoPrueba?: 'movimiento' | 'brillo'
   onSelectCandidate?: (candidate: DiffCandidate) => void
+  onSelectTargetCoords?: (coords: { ra: number; dec: number }) => void
   onOpenReport?: () => void
   onMarkClean?: () => void
   onClose?: () => void
@@ -29,11 +30,61 @@ export function BlinkViewer({
   objectName,
   tipoPrueba,
   onSelectCandidate,
+  onSelectTargetCoords,
   onOpenReport,
   onMarkClean,
   onClose,
 }: BlinkViewerProps) {
   const [activeTab, setActiveTab] = useState<'blink' | 'diff'>('blink')
+  const [reticlePos, setReticlePos] = useState<{ xPct: number; yPct: number }>({
+    xPct: 50,
+    yPct: 50,
+  })
+  const [isCustomTarget, setIsCustomTarget] = useState<boolean>(false)
+
+  // Reset reticle position when switching quadrants
+  useEffect(() => {
+    setReticlePos({ xPct: 50, yPct: 50 })
+    setIsCustomTarget(false)
+  }, [cuadranteId, objectName])
+
+  const handleCutoutClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const clickX = e.clientX - rect.left
+    const clickY = e.clientY - rect.top
+
+    const u = Math.max(0, Math.min(1, clickX / rect.width))
+    const v = Math.max(0, Math.min(1, clickY / rect.height))
+
+    const xPct = u * 100
+    const yPct = v * 100
+    setReticlePos({ xPct, yPct })
+    setIsCustomTarget(true)
+
+    // Invert pixel coordinate to celestial offset:
+    // u: 0 (left = East = +RA) to 1 (right = West = -RA)
+    // v: 0 (top = North = +Dec) to 1 (bottom = South = -Dec)
+    const dx = u - 0.5
+    const dy = 0.5 - v
+
+    const cosDec = Math.cos((dec * Math.PI) / 180)
+    const safeCos = Math.abs(cosDec) > 0.001 ? Math.abs(cosDec) : 1
+
+    const raOffset = (-dx * fov) / safeCos
+    const decOffset = dy * fov
+
+    const targetRa = ((ra + raOffset) % 360 + 360) % 360
+    const targetDec = Math.max(-90, Math.min(90, dec + decOffset))
+
+    onSelectTargetCoords?.({ ra: targetRa, dec: targetDec })
+  }
+
+  const handleResetTarget = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    setReticlePos({ xPct: 50, yPct: 50 })
+    setIsCustomTarget(false)
+    onSelectTargetCoords?.({ ra, dec })
+  }
 
   const {
     currentEpoch,
@@ -141,8 +192,12 @@ export function BlinkViewer({
         />
       ) : (
         <>
-          {/* Main Dual-Epoch Canvas Frame */}
-          <div className="relative aspect-square w-full bg-black overflow-hidden flex items-center justify-center select-none">
+          {/* Main Dual-Epoch Canvas Frame (Interactive click to target any star) */}
+          <div
+            onClick={handleCutoutClick}
+            className="relative aspect-square w-full bg-black overflow-hidden flex items-center justify-center select-none cursor-crosshair group"
+            title="Click ANY star in this cutout to target and report it"
+          >
             {/* Loading skeleton */}
             {isLoading && (
               <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/90 gap-3">
@@ -189,12 +244,34 @@ export function BlinkViewer({
               />
             )}
 
-            {/* Center Reticle Crosshair */}
-            <div className="pointer-events-none absolute inset-0 z-15 flex items-center justify-center opacity-40">
+            {/* Dynamic Reticle Crosshair (Moves to any clicked star) */}
+            <div
+              className="pointer-events-none absolute z-15 -translate-x-1/2 -translate-y-1/2 transition-all duration-150"
+              style={{ left: `${reticlePos.xPct}%`, top: `${reticlePos.yPct}%` }}
+            >
               <div className="relative h-12 w-12 flex items-center justify-center">
-                <div className="absolute h-px w-full bg-cyan-400" />
-                <div className="absolute h-full w-px bg-cyan-400" />
-                <div className="h-4 w-4 rounded-full border border-cyan-400" />
+                <div
+                  className={`absolute h-px w-full transition-colors duration-150 ${
+                    isCustomTarget ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-cyan-400 opacity-60'
+                  }`}
+                />
+                <div
+                  className={`absolute h-full w-px transition-colors duration-150 ${
+                    isCustomTarget ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-cyan-400 opacity-60'
+                  }`}
+                />
+                <div
+                  className={`h-5 w-5 rounded-full border-2 transition-all duration-150 ${
+                    isCustomTarget
+                      ? 'border-emerald-400 animate-pulse shadow-[0_0_12px_#34d399]'
+                      : 'border-cyan-400 opacity-70'
+                  }`}
+                />
+                {isCustomTarget && (
+                  <span className="absolute -top-5 font-mono text-[9px] font-bold text-emerald-300 bg-slate-950/90 px-1.5 py-0.5 rounded border border-emerald-500/50 whitespace-nowrap shadow-md">
+                    STAR PINNED
+                  </span>
+                )}
               </div>
             </div>
 
@@ -223,6 +300,18 @@ export function BlinkViewer({
                 </span>
               )}
             </div>
+
+            {/* Reset Target Button if pinned to custom star */}
+            {isCustomTarget && (
+              <button
+                type="button"
+                onClick={handleResetTarget}
+                className="absolute bottom-3 left-3 z-20 rounded bg-slate-950/90 px-2 py-1 font-mono text-[9px] text-emerald-400 hover:text-white border border-emerald-500/40 hover:bg-slate-900 transition-all cursor-pointer flex items-center gap-1 shadow-md"
+                title="Reset target to center star"
+              >
+                <span>↺ Reset Center</span>
+              </button>
+            )}
 
             {/* Field of View stamp */}
             <div className="absolute bottom-3 right-3 z-20 rounded bg-slate-950/80 px-2 py-0.5 font-mono text-[10px] text-slate-400 border border-white/10">

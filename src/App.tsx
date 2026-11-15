@@ -174,6 +174,11 @@ export default function App() {
     [commandedCoords, setCoordinatesAndUrl]
   )
 
+  // Event handler for clicking directly on any star inside the SPHEREx Blink cutout
+  const handleSelectTargetCoords = useCallback((coords: { ra: number; dec: number }) => {
+    setClickedCoords(coords)
+  }, [])
+
   // Report modal handlers (RF-10, RF-11, RF-12, RF-13)
   const handleOpenReport = useCallback(() => {
     setReportPresetType(null)
@@ -279,6 +284,7 @@ export default function App() {
               objectName={activeQuadrant?.nombre ?? activeObject?.name}
               tipoPrueba={activeQuadrant?.tipo_prueba ?? activeObject?.tipoPrueba}
               onSelectCandidate={handleSelectCandidate}
+              onSelectTargetCoords={handleSelectTargetCoords}
               onOpenReport={handleOpenReport}
               onMarkClean={handleMarkClean}
               onClose={() => setIsBlinkOpen(false)}
