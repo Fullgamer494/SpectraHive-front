@@ -281,11 +281,11 @@ export default function App() {
               onHoverCoordinates={handleHoverCoordinates}
             />
           </div>
-          <div className="workspace-map-label"><span>SKY CONTEXT</span><span>Drag to explore · Click to select</span></div>
+          <div className="workspace-map-label"><span>SKY MAP</span><span>Drag to pan · Scroll to zoom · Click to inspect</span></div>
           <div className="workspace-readout">
-            <span>RA {liveCenter.ra.toFixed(4)}° / DEC {liveCenter.dec.toFixed(4)}°</span>
+            <span>MAP CENTER · RA {liveCenter.ra.toFixed(4)}° / DEC {liveCenter.dec >= 0 ? '+' : ''}{liveCenter.dec.toFixed(4)}°</span>
             <button type="button" onClick={() => focusSection('coordinates')}>
-              {clickedCoords ? 'Selected target details' : 'Sky details'}
+              {clickedCoords ? 'Selected point' : 'Coordinate guide'}
             </button>
           </div>
         </main>

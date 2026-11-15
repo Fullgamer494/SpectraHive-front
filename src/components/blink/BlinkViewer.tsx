@@ -114,7 +114,7 @@ export function BlinkViewer({
           <span className="module-index">03</span>
         </div>
         <h1 className="panel-title">{objectName ?? 'Custom field'}</h1>
-        <p className="inspector-target">Two epochs. One field of view.</p>
+        <p className="inspector-target">{isMotion ? 'Compare object position between epochs.' : tipoPrueba === 'brillo' ? 'Compare brightness between epochs; position stays fixed.' : 'Compare the same field across two epochs.'}</p>
       </header>
       <div className="inspector-modes" role="group" aria-label="Analysis mode">
         <button type="button" aria-pressed={activeTab === 'blink'} onClick={() => setActiveTab('blink')}><Repeat2 aria-hidden="true" /> Blink A / B</button>
@@ -145,7 +145,7 @@ export function BlinkViewer({
         </>
       )}
       <div className="inspector-facts">
-        <div className="facts-heading"><span>Field coordinates / J2000</span><span>{fov}° field</span></div>
+        <div className="facts-heading"><span>Map center · J2000</span><span>Field width: {fov}°</span></div>
         <dl><div><dt>Right ascension</dt><dd>{ra.toFixed(4)}<small>°</small></dd></div><div><dt>Declination</dt><dd>{dec >= 0 ? '+' : ''}{dec.toFixed(4)}<small>°</small></dd></div></dl>
         <p>{tipoPrueba ? (isMotion ? 'Look for a shift in position between epochs.' : 'Look for a change in brightness, not position.') : 'Compare the same field across two epochs.'} <span>False color: percentiles 1–99.</span></p>
       </div>

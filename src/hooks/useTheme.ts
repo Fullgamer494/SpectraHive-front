@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react'
 
 type Theme = 'dark' | 'light'
-const STORAGE_KEY = 'spectrahive-theme'
+const STORAGE_KEY = 'spectrahive-theme-v3'
 
 export function useTheme() {
   const [theme, setTheme] = useState<Theme>(() => {

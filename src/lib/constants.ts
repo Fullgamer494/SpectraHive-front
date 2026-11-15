@@ -34,9 +34,9 @@ export const HIPS_SURVEYS = [
     badge: 'AWS S3',
   },
   {
-    id: 'cds-2mass',
-    name: '2MASS (CDS ID)',
-    url: 'CDS/P/2MASS/color',
+    id: 'cds-2mass-mirror',
+    name: '2MASS (CDS mirror)',
+    url: 'https://hips.china-vo.org/m/CDS_P_2MASS_color',
     badge: 'CDS',
   },
 ] as const
