@@ -1,18 +1,6 @@
+/* Assisted by Codex (SI) — reviewed by pendiente */
 @import "tailwindcss";
-
-/* 
- * Hide lingering internal Aladin Lite v3 loading labels, redundant boxes, and spinners.
- * SpectraHive manages its own high-res glassmorphic radar loader and dual astrometric telemetry.
- */
-#aladin-lite-div .aladin-loading,
-#aladin-lite-div .aladin-box-loading,
-#aladin-lite-div .aladin-layer-loading,
-#aladin-lite-div .aladin-loading-label,
-#aladin-lite-div div[class*="loading"],
-#aladin-lite-div span[class*="loading"],
-#aladin-lite-div .aladin-location,
-#aladin-lite-div .aladin-box-location,
-#aladin-lite-div .aladin-reticle-location,
-#aladin-lite-div div[class*="location"] {
-  display: none !important;
-}
+@import "./theme.css";
+@import "./workspace.css";
+@import "./inspector.css";
+@import "./compatibility.css";

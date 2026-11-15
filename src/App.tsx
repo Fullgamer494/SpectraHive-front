@@ -1,10 +1,13 @@
 // Assisted by Antigravity (SI) — reviewed by Luissmont
+// Assisted by Codex (SI) — reviewed by pendiente
 import { useState, useCallback, useEffect } from 'react'
+import { useTheme } from './hooks/useTheme'
 import { AladinViewer } from './components/blink/AladinViewer'
 import { BlinkViewer } from './components/blink/BlinkViewer'
 import { HudHeader } from './components/layout/HudHeader'
 import { QuadrantQueueNav } from './components/layout/QuadrantQueueNav'
 import { TestObjectShortcuts } from './components/search/TestObjectShortcuts'
+import { WorkspaceNav } from './components/layout/WorkspaceNav'
 import { CoordinatesHud } from './components/layout/CoordinatesHud'
 import { ReportModal } from './components/report/ReportModal'
 import { CosmicDnaViewer } from './components/adn/CosmicDnaViewer'
@@ -18,8 +21,8 @@ import type { TestObject } from './types/quadrant'
 import type { DiffCandidate, AnomalyType } from './types/api'
 
 export default function App() {
+  const { theme, toggleTheme } = useTheme()
   const [activeSurvey, setActiveSurvey] = useState<string>(DEFAULT_ALADIN_SURVEY)
-  const [isBlinkOpen, setIsBlinkOpen] = useState<boolean>(true)
   const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false)
   const [reportPresetType, setReportPresetType] = useState<AnomalyType | null>(null)
   const [isDnaModalOpen, setIsDnaModalOpen] = useState<boolean>(false)
@@ -85,11 +88,13 @@ export default function App() {
   )
 
   const handleNextQuadrant = useCallback(() => {
+    if (!quadrants.length) return
     const nextIdx = (currentIndex + 1) % quadrants.length
     handleSelectQuadrantByIndex(nextIdx)
   }, [currentIndex, quadrants.length, handleSelectQuadrantByIndex])
 
   const handlePrevQuadrant = useCallback(() => {
+    if (!quadrants.length) return
     const prevIdx = (currentIndex - 1 + quadrants.length) % quadrants.length
     handleSelectQuadrantByIndex(prevIdx)
   }, [currentIndex, quadrants.length, handleSelectQuadrantByIndex])
@@ -226,56 +231,65 @@ export default function App() {
     selectQuadrantByCoordinates(commandedCoords.ra, commandedCoords.dec)
   }, [commandedCoords.ra, commandedCoords.dec, selectQuadrantByCoordinates])
 
+  const focusSection = (section: 'targets' | 'coordinates' | 'inspector') => {
+    const element = document.getElementById(`panel-${section}`)
+    element?.focus({ preventScroll: true })
+    element?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }
+
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-slate-950 text-slate-100 font-sans">
-      {/* 1. Aladin Lite Interactive Canvas Backdrop (Full Screen) */}
-      <div className="absolute inset-0 z-0">
-        <AladinViewer
-          coordinates={commandedCoords}
-          survey={activeSurvey}
-          selectedCoordinates={clickedCoords}
-          onPositionChange={handlePositionChange}
-          onZoomChange={handleZoomChange}
-          onClickCoordinates={handleClickCoordinates}
-          onHoverCoordinates={handleHoverCoordinates}
-        />
-      </div>
-
-      {/* 2. Dark Space Glassmorphism HUD Overlay (Floating on top) */}
-      <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-between p-4 sm:p-6 overflow-hidden">
-        {/* Top Section: Mission Header, Quadrant Queue Nav & Test Object Shortcuts */}
-        <div className="flex flex-col gap-2.5 max-w-7xl mx-auto w-full">
-          {urlError && <UrlErrorBanner message={urlError} onDismiss={clearUrlError} />}
-
-          <HudHeader
-            coordinates={{ ...commandedCoords, ra: liveCenter.ra, dec: liveCenter.dec }}
-            activeObjectName={activeQuadrant?.nombre ?? activeObject?.name}
-            activeObjectType={activeQuadrant?.tipo_prueba ?? activeObject?.tipoPrueba}
-            activeSurvey={activeSurvey}
-            onSurveyChange={setActiveSurvey}
-            onFovChange={handleFovChange}
-          />
-
-          {/* Fixed Quadrant Queue Navigator (RF-05) */}
-          <QuadrantQueueNav
-            quadrants={quadrants}
-            currentIndex={currentIndex}
-            activeQuadrant={activeQuadrant}
-            isLoading={isQueueLoading}
-            onNext={handleNextQuadrant}
-            onPrev={handlePrevQuadrant}
-            onSelectIndex={handleSelectQuadrantByIndex}
-          />
-
-          <TestObjectShortcuts
-            activeObjectId={activeObject?.id}
-            onSelectObject={handleSelectTestObject}
-          />
-        </div>
-
-        {/* Center-Right Floating Dock: SPHEREx Inspector (Blink & Resta |B-A|) */}
-        {isBlinkOpen ? (
-          <div className="pointer-events-auto fixed right-4 sm:right-6 top-48 z-20 w-80 sm:w-96 max-w-[calc(100vw-2rem)]">
+    <div data-design="engineering" data-theme={theme} className="workspace">
+      <HudHeader
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        coordinates={commandedCoords}
+        activeObjectName={activeQuadrant?.nombre ?? activeObject?.name}
+        activeObjectType={activeQuadrant?.tipo_prueba ?? activeObject?.tipoPrueba}
+        activeSurvey={activeSurvey}
+        onSurveyChange={setActiveSurvey}
+        onFovChange={handleFovChange}
+      />
+      {urlError && <UrlErrorBanner message={urlError} onDismiss={clearUrlError} />}
+      <div className="workspace-body">
+        <WorkspaceNav onFocusSection={focusSection} onOpenDna={() => setIsDnaModalOpen(true)} />
+        <aside className="workspace-context" aria-label="Targets and sky details">
+          <section id="panel-targets" className="context-section" tabIndex={-1} aria-labelledby="targets-title">
+            <div className="workspace-panel-heading"><h2 id="targets-title">Test objects</h2><span className="module-index">01</span></div>
+            <TestObjectShortcuts activeObjectId={activeObject?.id} onSelectObject={handleSelectTestObject} />
+          </section>
+          <section id="panel-coordinates" className="context-section" tabIndex={-1} aria-labelledby="coordinates-title">
+            <CoordinatesHud
+              centerCoords={{ ...commandedCoords, ra: liveCenter.ra, dec: liveCenter.dec }}
+              currentFov={liveFov}
+              hoverCoords={hoverCoords}
+              clickedCoords={clickedCoords}
+              activeObject={activeObject}
+              onClearClicked={() => setClickedCoords(null)}
+              onCenterOnSelected={handleCenterOnSelected}
+            />
+          </section>
+        </aside>
+        <main className="workspace-sky" aria-label="Sky observation workspace">
+          <div className="workspace-map">
+            <AladinViewer
+              coordinates={commandedCoords}
+              survey={activeSurvey}
+              selectedCoordinates={clickedCoords}
+              onPositionChange={handlePositionChange}
+              onZoomChange={handleZoomChange}
+              onClickCoordinates={handleClickCoordinates}
+              onHoverCoordinates={handleHoverCoordinates}
+            />
+          </div>
+          <div className="workspace-map-label"><span>SKY CONTEXT</span><span>Drag to explore · Click to select</span></div>
+          <div className="workspace-readout">
+            <span>RA {liveCenter.ra.toFixed(4)}° / DEC {liveCenter.dec.toFixed(4)}°</span>
+            <button type="button" onClick={() => focusSection('coordinates')}>
+              {clickedCoords ? 'Selected target details' : 'Sky details'}
+            </button>
+          </div>
+        </main>
+          <aside id="panel-inspector" tabIndex={-1} className="workspace-inspector" aria-label="SPHEREx image analysis">
             <BlinkViewer
               ra={commandedCoords.ra}
               dec={commandedCoords.dec}
@@ -290,54 +304,18 @@ export default function App() {
               onOpenReport={handleOpenReport}
               onMarkClean={handleMarkClean}
               onOpenDna={() => setIsDnaModalOpen(true)}
-              onClose={() => setIsBlinkOpen(false)}
             />
-          </div>
-        ) : (
-          /* Floating reopen pill if closed */
-          <div className="pointer-events-auto fixed right-6 top-48 z-20 flex flex-col gap-2">
-            <button
-              type="button"
-              onClick={() => setIsBlinkOpen(true)}
-              className="flex items-center gap-2 rounded-2xl bg-slate-950/80 backdrop-blur-md border border-cyan-500/40 px-3.5 py-2 font-mono text-xs text-cyan-300 shadow-[0_4px_24px_rgba(6,182,212,0.3)] hover:bg-slate-900 transition-all cursor-pointer hover:border-cyan-400"
-            >
-              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
-              <span>OPEN SPHEREx INSPECTOR</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setIsDnaModalOpen(true)}
-              className="flex items-center gap-2 rounded-2xl bg-slate-950/80 backdrop-blur-md border border-amber-500/40 px-3.5 py-1.5 font-mono text-xs text-amber-300 shadow-md hover:bg-slate-900 transition-all cursor-pointer hover:border-amber-400"
-            >
-              <span>🧬 COSMIC DNA</span>
-            </button>
-          </div>
-        )}
-
-        {/* Bottom Section: Astrometric Telemetry HUD */}
-        <div className="flex flex-wrap items-end justify-between gap-4 max-w-7xl mx-auto w-full">
-          <CoordinatesHud
-            centerCoords={{ ...commandedCoords, ra: liveCenter.ra, dec: liveCenter.dec }}
-            currentFov={liveFov}
-            hoverCoords={hoverCoords}
-            clickedCoords={clickedCoords}
-            activeObject={activeObject}
-            onClearClicked={() => setClickedCoords(null)}
-            onCenterOnSelected={handleCenterOnSelected}
-          />
-
-          {/* Mission Status Badge */}
-          <div className="pointer-events-auto rounded-xl bg-slate-950/60 backdrop-blur-md border border-white/10 px-3.5 py-2 font-mono text-[10px] text-slate-400 shadow-lg hidden sm:block">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-slate-200 font-semibold">STAGE 06: FULL MVP WORKFLOW READY</span>
-            </div>
-            <p className="text-slate-500 mt-0.5">
-              Blink → Diff |B − A| → Report & Consensus → Cosmic DNA (RF-01 to RF-17)
-            </p>
-          </div>
-        </div>
+          </aside>
       </div>
+      <QuadrantQueueNav
+        quadrants={quadrants}
+        currentIndex={currentIndex}
+        activeQuadrant={activeQuadrant}
+        isLoading={isQueueLoading}
+        onNext={handleNextQuadrant}
+        onPrev={handlePrevQuadrant}
+        onSelectIndex={handleSelectQuadrantByIndex}
+      />
 
       {/* Anomaly Reporting & Consensus Modal Dialog (RF-10, RF-11, RF-12, RF-13) */}
       <ReportModal

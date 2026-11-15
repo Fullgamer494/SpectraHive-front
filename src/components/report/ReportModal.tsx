@@ -1,4 +1,6 @@
+// Assisted by Codex (SI) — reviewed by pendiente
 // Assisted by Antigravity (SI) — reviewed by Luissmont
+import { ArrowRight, ChartNoAxesColumn, Check, CircleCheck, MoveUpRight, Radio, ShieldCheck, Sun, TriangleAlert, X } from 'lucide-react'
 import React, { useState, useEffect, useCallback } from 'react'
 import type { QuadrantDto, AnomalyType } from '../../types/api'
 import type { UseReportReturn } from '../../hooks/useReport'
@@ -104,9 +106,9 @@ export const ReportModal: React.FC<ReportModalProps> = ({
             type="button"
             onClick={handleClose}
             className="text-slate-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-slate-800 text-lg leading-none cursor-pointer"
-            title="Close (Esc)"
+            title="Close (Esc)" aria-label="Close report"
           >
-            ✕
+            <X aria-hidden="true" />
           </button>
         </div>
 
@@ -170,7 +172,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-white flex items-center gap-2">
-                      <span className="text-cyan-400 font-bold">☄️ Proper Motion Anomaly</span>
+                      <span className="text-cyan-400 font-bold"><MoveUpRight aria-hidden="true" /> Proper Motion Anomaly</span>
                       {isMotionGroup && (
                         <span className="text-[10px] bg-cyan-900/60 text-cyan-300 px-1.5 py-0.5 rounded">
                           Recommended
@@ -205,7 +207,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-white flex items-center gap-2">
-                      <span className="text-amber-400 font-bold">✨ Brightness Variation</span>
+                      <span className="text-amber-400 font-bold"><Sun aria-hidden="true" /> Brightness Variation</span>
                       {isBrightnessGroup && (
                         <span className="text-[10px] bg-amber-900/60 text-amber-300 px-1.5 py-0.5 rounded">
                           Recommended
@@ -237,7 +239,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 >
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-white flex items-center gap-2">
-                      <span className="text-emerald-400 font-bold">🛡️ Mark as Clean Quadrant</span>
+                      <span className="text-emerald-400 font-bold"><ShieldCheck aria-hidden="true" /> Mark as Clean Quadrant</span>
                     </span>
                     <input
                       type="radio"
@@ -258,7 +260,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           {(reportState.stage === 'submitting' || reportState.stage === 'validating') && (
             <div className="py-6 space-y-6 text-center">
               <div className="inline-flex p-4 rounded-full bg-cyan-950/50 border border-cyan-500/40 animate-pulse">
-                <span className="text-3xl">📡</span>
+                <span className="text-3xl"><Radio aria-hidden="true" size={28} /></span>
               </div>
               <div className="space-y-2">
                 <h3 className="text-base font-semibold text-white">
@@ -288,13 +290,13 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   </div>
                   <div className="flex justify-between text-[11px] font-mono text-slate-500 pt-1">
                     <span className={reportState.voteCount >= 1 ? 'text-cyan-400' : ''}>
-                      ✓ You (Primary)
+                      <Check aria-hidden="true" /> You (Primary)
                     </span>
                     <span className={reportState.voteCount >= 2 ? 'text-cyan-400' : ''}>
-                      ✓ Reviewer 2 [Simulated]
+                      <Check aria-hidden="true" /> Reviewer 2 [Simulated]
                     </span>
                     <span className={reportState.voteCount >= 3 ? 'text-emerald-400 font-bold' : ''}>
-                      ✓ Reviewer 3 [Simulated]
+                      <Check aria-hidden="true" /> Reviewer 3 [Simulated]
                     </span>
                   </div>
                 </div>
@@ -306,7 +308,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           {reportState.stage === 'confirmed' && (
             <div className="py-4 space-y-5 text-center">
               <div className="inline-flex p-3 rounded-full bg-emerald-950/60 border border-emerald-500/50">
-                <span className="text-3xl">✅</span>
+                <span className="text-3xl"><CircleCheck aria-hidden="true" size={28} /></span>
               </div>
               <div className="space-y-1">
                 <h3 className="text-lg font-bold text-emerald-400">
@@ -349,7 +351,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
           {reportState.stage === 'error' && (
             <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-500/50 text-rose-200 text-xs space-y-2">
               <div className="font-bold text-rose-400 flex items-center gap-2">
-                <span>⚠️ Error Submitting Report</span>
+                <span><TriangleAlert aria-hidden="true" /> Error Submitting Report</span>
               </div>
               <p>{reportState.errorMessage}</p>
             </div>
@@ -391,7 +393,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                 }}
                 className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-200 bg-slate-800 hover:bg-slate-700 transition-colors flex items-center gap-1.5 cursor-pointer"
               >
-                <span>Done / Next Quadrant →</span>
+                <span>Done / Next Quadrant <ArrowRight aria-hidden="true" /></span>
               </button>
               {onOpenDna && selectedType !== 'limpio' && (
                 <button
@@ -402,7 +404,7 @@ export const ReportModal: React.FC<ReportModalProps> = ({
                   }}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-950 bg-gradient-to-r from-cyan-400 to-amber-300 hover:brightness-110 shadow-lg shadow-cyan-950/50 transition-all flex items-center gap-2 font-mono uppercase"
                 >
-                  <span>🧬 View Cosmic DNA</span>
+                  <span><ChartNoAxesColumn aria-hidden="true" /> View Cosmic DNA</span>
                 </button>
               )}
             </div>

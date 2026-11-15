@@ -1,4 +1,5 @@
 // Assisted by Antigravity (SI) — reviewed by Luissmont
+// Assisted by Codex (SI) — reviewed by pendiente
 import { useEffect, useRef, useState, useCallback } from 'react'
 import type { AladinInstance, AladinStatic, AladinClickEvent, AladinCatalog } from '../types/aladin'
 import { DEFAULT_ALADIN_SURVEY } from '../lib/constants'
@@ -125,7 +126,7 @@ export function useAladin(
           try {
             const targetCatalog = A.catalog({
               name: 'Candidate Marker',
-              color: '#10b981',
+              color: '#d8a654',
               sourceSize: 20,
               shape: 'circle',
               displayLabel: true,

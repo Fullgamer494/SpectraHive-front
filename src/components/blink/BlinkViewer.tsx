@@ -1,4 +1,6 @@
 // Assisted by Antigravity (SI) — reviewed by Luissmont
+// Assisted by Codex (SI) — reviewed by pendiente
+import { ChartNoAxesColumn, Flag, Minus, Pause, Play, Repeat2, RotateCcw, ShieldCheck } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useBlink } from '../../hooks/useBlink'
 import { DiffViewer } from './DiffViewer'
@@ -18,7 +20,6 @@ interface BlinkViewerProps {
   onOpenReport?: () => void
   onMarkClean?: () => void
   onOpenDna?: () => void
-  onClose?: () => void
 }
 
 export function BlinkViewer({
@@ -35,7 +36,6 @@ export function BlinkViewer({
   onOpenReport,
   onMarkClean,
   onOpenDna,
-  onClose,
 }: BlinkViewerProps) {
   const [activeTab, setActiveTab] = useState<'blink' | 'diff'>('blink')
   const [reticlePos, setReticlePos] = useState<{ xPct: number; yPct: number }>({
@@ -108,335 +108,51 @@ export function BlinkViewer({
   const isMotion = tipoPrueba === 'movimiento'
 
   return (
-    <div className="pointer-events-auto flex flex-col rounded-3xl bg-slate-950/90 backdrop-blur-xl border border-cyan-500/30 shadow-[0_12px_48px_rgba(0,0,0,0.7)] overflow-hidden w-full max-w-md transition-all">
-      {/* 1. Top Header with Mission Badges & Close Button */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/10 bg-slate-900/70">
-        <div className="flex items-center gap-2">
-          <span className="flex h-3 w-3 items-center justify-center">
-            <span
-              className={`h-2 w-2 rounded-full ${
-                activeTab === 'blink' && isPlaying ? 'bg-cyan-400 animate-ping' : 'bg-emerald-400'
-              }`}
-            />
-          </span>
-          <span className="font-mono text-xs font-bold text-slate-100 tracking-wider">
-            SPHEREx INSPECTOR
-          </span>
-          {tipoPrueba && (
-            <span
-              className={`rounded px-1.5 py-0.2 font-mono text-[9px] uppercase font-bold border ${
-                isMotion
-                  ? 'bg-amber-500/15 text-amber-300 border-amber-500/40'
-                  : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40'
-              }`}
-            >
-              {isMotion ? 'Motion Test' : 'Brightness Test'}
-            </span>
-          )}
+    <section className="inspector" aria-label="Image inspector">
+      <header className="inspector-heading">
+        <div className="inspector-kicker"><span>Inspector / {tipoPrueba ? (isMotion ? 'Motion study' : 'Brightness study') : 'Field study'}</span>
+          <span className="module-index">03</span>
         </div>
-
-        {onClose && (
-          <button
-            type="button"
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-200 p-1 rounded-lg hover:bg-white/10 cursor-pointer"
-            aria-label="Close Inspector"
-          >
-            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
-        )}
+        <h1 className="panel-title">{objectName ?? 'Custom field'}</h1>
+        <p className="inspector-target">Two epochs. One field of view.</p>
+      </header>
+      <div className="inspector-modes" role="group" aria-label="Analysis mode">
+        <button type="button" aria-pressed={activeTab === 'blink'} onClick={() => setActiveTab('blink')}><Repeat2 aria-hidden="true" /> Blink A / B</button>
+        <button type="button" aria-pressed={activeTab === 'diff'} onClick={() => setActiveTab('diff')}><Minus aria-hidden="true" /> Difference |B − A|</button>
       </div>
-
-      {/* 2. Mode Selector: [ Blink A ↔ B ] vs [ Resta |B - A| ] */}
-      <div className="flex items-center justify-center p-1.5 bg-slate-900/40 border-b border-white/5 font-mono text-xs gap-1.5">
-        <button
-          type="button"
-          onClick={() => setActiveTab('blink')}
-          className={`flex-1 py-1.5 rounded-xl text-center font-bold transition-all cursor-pointer border flex items-center justify-center gap-1.5 ${
-            activeTab === 'blink'
-              ? 'bg-cyan-500/20 text-cyan-200 border-cyan-400/60 shadow-[0_0_12px_rgba(6,182,212,0.25)]'
-              : 'text-slate-400 hover:text-slate-200 border-transparent hover:bg-slate-900/50'
-          }`}
-        >
-          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="23 4 23 10 17 10" />
-            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-          </svg>
-          <span>BLINK A ↔ B</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('diff')}
-          className={`flex-1 py-1.5 rounded-xl text-center font-bold transition-all cursor-pointer border flex items-center justify-center gap-1.5 ${
-            activeTab === 'diff'
-              ? 'bg-emerald-500/20 text-emerald-200 border-emerald-400/60 shadow-[0_0_12px_rgba(16,185,129,0.25)]'
-              : 'text-slate-400 hover:text-slate-200 border-transparent hover:bg-slate-900/50'
-          }`}
-        >
-          <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <line x1="5" y1="12" x2="19" y2="12" />
-          </svg>
-          <span>RESTA |B − A|</span>
-        </button>
-      </div>
-
-      {/* 3. Tab Body: Either Blink Viewer or Difference Viewer */}
       {activeTab === 'diff' ? (
-        <DiffViewer
-          cuadranteId={cuadranteId}
-          epocaA={epocaA}
-          epocaB={epocaB}
-          onSelectCandidate={onSelectCandidate}
-        />
+        <DiffViewer cuadranteId={cuadranteId} epocaA={epocaA} epocaB={epocaB} onSelectCandidate={onSelectCandidate} />
       ) : (
         <>
-          {/* Main Dual-Epoch Canvas Frame (Interactive click to target any star) */}
-          <div
-            onClick={handleCutoutClick}
-            className="relative aspect-square w-full bg-black overflow-hidden flex items-center justify-center select-none cursor-crosshair group"
-            title="Click ANY star in this cutout to target and report it"
-          >
-            {/* Loading skeleton */}
-            {isLoading && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/90 gap-3">
-                <div className="h-10 w-10 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
-                <p className="font-mono text-xs text-cyan-300 animate-pulse tracking-wide">
-                  Loading SPHEREx Cutouts...
-                </p>
-              </div>
+          <div className="inspector-image image-stage" onClick={handleCutoutClick} title="Click a source in the image to select its coordinates">
+            {imageA && <img src={imageA} alt="Epoch A infrared cutout" className={currentEpoch === 'A' ? 'epoch-image is-visible' : 'epoch-image'} />}
+            {imageB && <img src={imageB} alt="Epoch B infrared cutout" className={currentEpoch === 'B' ? 'epoch-image is-visible' : 'epoch-image'} />}
+            {!isLoading && !error && (
+              <div className="image-reticle" style={{ left: `${reticlePos.xPct}%`, top: `${reticlePos.yPct}%` }} aria-hidden="true"><span /><span /></div>
             )}
-
-            {/* Error overlay */}
-            {error && (
-              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center p-6 text-center bg-slate-950/95 gap-3">
-                <p className="text-xs text-red-300 font-mono">{error}</p>
-                <button
-                  type="button"
-                  onClick={reload}
-                  className="px-3 py-1.5 rounded-lg bg-cyan-600/30 text-cyan-200 border border-cyan-500/40 text-xs font-mono cursor-pointer"
-                >
-                  Retry
-                </button>
-              </div>
-            )}
-
-            {/* Epoch A Image Layer */}
-            {imageA && (
-              <img
-                src={imageA}
-                alt="Epoch A Infrared Cutout"
-                className={`absolute inset-0 w-full h-full object-contain pointer-events-none transition-opacity duration-75 ${
-                  currentEpoch === 'A' ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                }`}
-              />
-            )}
-
-            {/* Epoch B Image Layer */}
-            {imageB && (
-              <img
-                src={imageB}
-                alt="Epoch B Infrared Cutout"
-                className={`absolute inset-0 w-full h-full object-contain pointer-events-none transition-opacity duration-75 ${
-                  currentEpoch === 'B' ? 'opacity-100 z-10' : 'opacity-0 z-0'
-                }`}
-              />
-            )}
-
-            {/* Dynamic Reticle Crosshair (Moves to any clicked star) */}
-            <div
-              className="pointer-events-none absolute z-15 -translate-x-1/2 -translate-y-1/2 transition-all duration-150"
-              style={{ left: `${reticlePos.xPct}%`, top: `${reticlePos.yPct}%` }}
-            >
-              <div className="relative h-12 w-12 flex items-center justify-center">
-                <div
-                  className={`absolute h-px w-full transition-colors duration-150 ${
-                    isCustomTarget ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-cyan-400 opacity-60'
-                  }`}
-                />
-                <div
-                  className={`absolute h-full w-px transition-colors duration-150 ${
-                    isCustomTarget ? 'bg-emerald-400 shadow-[0_0_8px_#34d399]' : 'bg-cyan-400 opacity-60'
-                  }`}
-                />
-                <div
-                  className={`h-5 w-5 rounded-full border-2 transition-all duration-150 ${
-                    isCustomTarget
-                      ? 'border-emerald-400 animate-pulse shadow-[0_0_12px_#34d399]'
-                      : 'border-cyan-400 opacity-70'
-                  }`}
-                />
-                {isCustomTarget && (
-                  <span className="absolute -top-5 font-mono text-[9px] font-bold text-emerald-300 bg-slate-950/90 px-1.5 py-0.5 rounded border border-emerald-500/50 whitespace-nowrap shadow-md">
-                    STAR PINNED
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* Floating Epoch HUD Pill (Active Epoch indicator) */}
-            <div className="absolute top-3 left-3 z-20 flex items-center gap-2">
-              <div
-                className={`flex items-center gap-1.5 rounded-xl px-2.5 py-1 font-mono text-xs font-bold shadow-lg border backdrop-blur-md transition-all ${
-                  currentEpoch === 'A'
-                    ? 'bg-cyan-950/80 text-cyan-300 border-cyan-400 shadow-cyan-500/20'
-                    : 'bg-amber-950/80 text-amber-300 border-amber-400 shadow-amber-500/20'
-                }`}
-              >
-                <span
-                  className={`h-2 w-2 rounded-full ${
-                    currentEpoch === 'A' ? 'bg-cyan-400' : 'bg-amber-400'
-                  }`}
-                />
-                <span>
-                  EPOCH {currentEpoch} ({currentEpoch === 'A' ? labelA : labelB})
-                </span>
-              </div>
-
-              {sourceTag === 'sintetico' && (
-                <span className="rounded bg-slate-900/80 px-2 py-0.5 text-[10px] font-mono text-slate-400 border border-white/10 backdrop-blur-sm">
-                  Fallback Sintético
-                </span>
-              )}
-            </div>
-
-            {/* Reset Target Button if pinned to custom star */}
-            {isCustomTarget && (
-              <button
-                type="button"
-                onClick={handleResetTarget}
-                className="absolute bottom-3 left-3 z-20 rounded bg-slate-950/90 px-2 py-1 font-mono text-[9px] text-emerald-400 hover:text-white border border-emerald-500/40 hover:bg-slate-900 transition-all cursor-pointer flex items-center gap-1 shadow-md"
-                title="Reset target to center star"
-              >
-                <span>↺ Reset Center</span>
-              </button>
-            )}
-
-            {/* Field of View stamp */}
-            <div className="absolute bottom-3 right-3 z-20 rounded bg-slate-950/80 px-2 py-0.5 font-mono text-[10px] text-slate-400 border border-white/10">
-              FOV {fov}° • J2000
-            </div>
+            <div className="image-caption"><span>Epoch {currentEpoch} / {currentEpoch === 'A' ? labelA : labelB}</span><span>{sourceTag === 'sintetico' ? 'Synthetic fallback' : sourceTag === 'irsa' ? 'IRSA' : 'Loading'}</span></div>
+            {isLoading && <div className="image-message" role="status"><span className="loading-mark" />Loading cutouts…</div>}
+            {error && <div className="image-message" role="alert"><p>{error}</p><button type="button" onClick={(event) => { event.stopPropagation(); void reload() }}>Retry</button></div>}
+            {isCustomTarget && <button className="image-reset" type="button" onClick={handleResetTarget}><RotateCcw aria-hidden="true" /> Reset selection</button>}
           </div>
-
-          {/* Control Bar: Play/Pause, Manual Toggle, Speed */}
-          <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-slate-900/50 border-t border-white/10">
-            {/* Play/Pause Button */}
-            <button
-              type="button"
-              onClick={togglePlay}
-              className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 font-mono text-xs font-bold transition-all cursor-pointer border ${
-                isPlaying
-                  ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.4)]'
-                  : 'bg-slate-800 text-slate-200 border-white/10 hover:bg-slate-700'
-              }`}
-            >
-              {isPlaying ? (
-                <>
-                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
-                    <rect x="6" y="4" width="4" height="16" />
-                    <rect x="14" y="4" width="4" height="16" />
-                  </svg>
-                  <span>PAUSE</span>
-                </>
-              ) : (
-                <>
-                  <svg className="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor">
-                    <polygon points="5 3 19 12 5 21 5 3" />
-                  </svg>
-                  <span>BLINK</span>
-                </>
-              )}
-            </button>
-
-            {/* Manual Epoch A / B Toggle Switch */}
-            <div className="flex items-center rounded-xl bg-slate-950/80 p-1 border border-white/10">
-              <button
-                type="button"
-                onClick={() => setEpoch('A')}
-                className={`px-2.5 py-1 rounded-lg font-mono text-xs font-semibold transition-all cursor-pointer ${
-                  currentEpoch === 'A'
-                    ? 'bg-cyan-500/30 text-cyan-200 border border-cyan-400/50'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Ep. A
-              </button>
-              <button
-                type="button"
-                onClick={() => setEpoch('B')}
-                className={`px-2.5 py-1 rounded-lg font-mono text-xs font-semibold transition-all cursor-pointer ${
-                  currentEpoch === 'B'
-                    ? 'bg-amber-500/30 text-amber-200 border border-amber-400/50'
-                    : 'text-slate-400 hover:text-slate-200'
-                }`}
-              >
-                Ep. B
-              </button>
+          <div className="inspector-playback">
+            <button type="button" className="playback-toggle" onClick={togglePlay} aria-label={isPlaying ? 'Pause blink' : 'Play blink'}>{isPlaying ? <Pause aria-hidden="true" /> : <Play aria-hidden="true" />}{isPlaying ? 'Pause' : 'Play'}</button>
+            <div className="epoch-controls" role="group" aria-label="Select epoch">
+              {(['A', 'B'] as const).map((epoch) => <button key={epoch} type="button" aria-pressed={currentEpoch === epoch} onClick={() => { if (isPlaying) togglePlay(); setEpoch(epoch) }}>Epoch {epoch}</button>)}
             </div>
-
-            {/* Speed Selector (300ms, 500ms, 1s) */}
-            <div className="flex items-center gap-1 font-mono text-[10px]">
-              <span className="text-slate-500 uppercase mr-1">Speed:</span>
-              {[
-                { label: '0.3s', ms: 300 },
-                { label: '0.5s', ms: 500 },
-                { label: '1.0s', ms: 1000 },
-              ].map((item) => (
-                <button
-                  key={item.ms}
-                  type="button"
-                  onClick={() => setSpeed(item.ms)}
-                  className={`px-2 py-1 rounded-md transition-all cursor-pointer ${
-                    speedMs === item.ms
-                      ? 'bg-cyan-950 text-cyan-300 font-bold border border-cyan-500/50'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                  }`}
-                >
-                  {item.label}
-                </button>
-              ))}
-            </div>
+            <label className="playback-speed">Interval<select value={speedMs} onChange={(event) => setSpeed(Number(event.target.value))}><option value={300}>0.3 s</option><option value={500}>0.5 s</option><option value={1000}>1.0 s</option></select></label>
           </div>
         </>
       )}
-
-      {/* 4. Action Bar: Report Anomaly or Mark Clean (RF-10, RF-11, RF-14) */}
-      <div className="p-3 bg-slate-950/95 border-t border-white/10 flex gap-2">
-        <button
-          type="button"
-          onClick={onOpenReport}
-          className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs font-mono tracking-wider uppercase transition-all shadow-md shadow-cyan-950/50 flex items-center justify-center gap-1.5 cursor-pointer"
-        >
-          <span>🚨 Report Anomaly</span>
-        </button>
-        <button
-          type="button"
-          onClick={onMarkClean}
-          className="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 font-semibold text-xs font-mono tracking-wider uppercase transition-all flex items-center justify-center gap-1 cursor-pointer"
-          title="Mark Quadrant Clean"
-        >
-          <span>🛡️ Clean</span>
-        </button>
-        <button
-          type="button"
-          onClick={onOpenDna}
-          className="py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 hover:text-white border border-cyan-500/40 font-semibold text-xs font-mono tracking-wider uppercase transition-all flex items-center justify-center gap-1 cursor-pointer"
-          title="View Cosmic DNA Spectral Fingerprint"
-        >
-          <span>🧬 DNA</span>
-        </button>
+      <div className="inspector-facts">
+        <div className="facts-heading"><span>Field coordinates / J2000</span><span>{fov}° field</span></div>
+        <dl><div><dt>Right ascension</dt><dd>{ra.toFixed(4)}<small>°</small></dd></div><div><dt>Declination</dt><dd>{dec >= 0 ? '+' : ''}{dec.toFixed(4)}<small>°</small></dd></div></dl>
+        <p>{tipoPrueba ? (isMotion ? 'Look for a shift in position between epochs.' : 'Look for a change in brightness, not position.') : 'Compare the same field across two epochs.'} <span>False color: percentiles 1–99.</span></p>
       </div>
-
-      {/* Target hint footer */}
-      {objectName && (
-        <div className="px-4 py-1.5 bg-slate-950/90 border-t border-white/5 font-mono text-[10px] text-slate-400 flex justify-between items-center">
-          <span className="truncate">Target: {objectName}</span>
-          <span className="text-slate-500 shrink-0">Percentiles 1-99</span>
-        </div>
-      )}
-    </div>
+      <footer className="inspector-actions">
+        <button type="button" className="action-primary" onClick={onOpenReport}><Flag aria-hidden="true" /> Report anomaly</button>
+        <div><button type="button" onClick={onMarkClean}><ShieldCheck aria-hidden="true" /> Mark clean</button><button type="button" onClick={onOpenDna}><ChartNoAxesColumn aria-hidden="true" /> Cosmic DNA</button></div>
+      </footer>
+    </section>
   )
 }
