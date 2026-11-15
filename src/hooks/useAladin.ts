@@ -297,31 +297,96 @@ export function useAladin(
     }
   }, [options.survey, status])
 
-  // Mousemove event listener for real-time cursor celestial coordinates
+  // Mousemove and Click event listeners for real-time cursor celestial coordinates & arbitrary sky clicks
   useEffect(() => {
-    const container = containerRef.current
-    if (!container || status !== 'ready') return
+    if (status !== 'ready') return
 
-    const handleMouseMove = (e: MouseEvent) => {
-      if (!aladinRef.current || !aladinRef.current.pix2world) return
+    let startX = 0
+    let startY = 0
 
-      const rect = container.getBoundingClientRect()
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
+    const handleMouseDown = (e: MouseEvent) => {
+      startX = e.clientX
+      startY = e.clientY
+    }
 
-      try {
-        const worldCoords = aladinRef.current.pix2world(x, y)
-        if (worldCoords && typeof worldCoords[0] === 'number' && typeof worldCoords[1] === 'number') {
-          onHoverCoordinatesRef.current?.(worldCoords[0], worldCoords[1])
+    const handleMouseUp = (e: MouseEvent) => {
+      if (!aladinRef.current || !aladinRef.current.pix2world || !containerRef.current) return
+
+      // Don't trigger star selection if the user clicked on an interactive HUD/dialog element
+      const targetEl = e.target as HTMLElement | null
+      if (targetEl && targetEl.closest('.pointer-events-auto')) {
+        return
+      }
+
+      const deltaX = Math.abs(e.clientX - startX)
+      const deltaY = Math.abs(e.clientY - startY)
+
+      // If mouse moved less than 6px between down and up, it was a click on the sky (not a pan drag)
+      if (deltaX < 6 && deltaY < 6) {
+        const rect = containerRef.current.getBoundingClientRect()
+        const x = e.clientX - rect.left
+        const y = e.clientY - rect.top
+
+        if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+          try {
+            // Pass "icrs" coordinate system to Aladin WASM
+            const aladinObj = aladinRef.current as unknown as {
+              pix2world: (x: number, y: number, frame?: string) => [number, number] | undefined
+            }
+            const worldCoords = aladinObj.pix2world(x, y, 'icrs') || aladinObj.pix2world(x, y)
+            if (
+              worldCoords &&
+              typeof worldCoords[0] === 'number' &&
+              typeof worldCoords[1] === 'number' &&
+              !Number.isNaN(worldCoords[0]) &&
+              !Number.isNaN(worldCoords[1])
+            ) {
+              console.log('[AladinLite] User selected sky target at celestial coords:', worldCoords[0], worldCoords[1])
+              onClickCoordinatesRef.current?.(worldCoords[0], worldCoords[1])
+            }
+          } catch (err) {
+            console.warn('[AladinLite] Failed to project sky click coordinates:', err)
+          }
         }
-      } catch {
-        // Ignore edge coordinate projection errors
       }
     }
 
-    container.addEventListener('mousemove', handleMouseMove, { passive: true })
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!aladinRef.current || !aladinRef.current.pix2world || !containerRef.current) return
+
+      const rect = containerRef.current.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+
+      // Check if mouse is within the viewport canvas bounds
+      if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+        try {
+          const aladinObj = aladinRef.current as unknown as {
+            pix2world: (x: number, y: number, frame?: string) => [number, number] | undefined
+          }
+          const worldCoords = aladinObj.pix2world(x, y, 'icrs') || aladinObj.pix2world(x, y)
+          if (
+            worldCoords &&
+            typeof worldCoords[0] === 'number' &&
+            typeof worldCoords[1] === 'number' &&
+            !Number.isNaN(worldCoords[0]) &&
+            !Number.isNaN(worldCoords[1])
+          ) {
+            onHoverCoordinatesRef.current?.(worldCoords[0], worldCoords[1])
+          }
+        } catch {
+          // Ignore edge coordinate projection errors
+        }
+      }
+    }
+
+    window.addEventListener('mousedown', handleMouseDown)
+    window.addEventListener('mouseup', handleMouseUp)
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
     return () => {
-      container.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mousedown', handleMouseDown)
+      window.removeEventListener('mouseup', handleMouseUp)
+      window.removeEventListener('mousemove', handleMouseMove)
     }
   }, [status, containerRef])
 

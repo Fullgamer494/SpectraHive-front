@@ -6,17 +6,24 @@ import { HudHeader } from './components/layout/HudHeader'
 import { QuadrantQueueNav } from './components/layout/QuadrantQueueNav'
 import { TestObjectShortcuts } from './components/search/TestObjectShortcuts'
 import { CoordinatesHud } from './components/layout/CoordinatesHud'
+import { ReportModal } from './components/report/ReportModal'
 import { UrlErrorBanner } from './components/ui/UrlErrorBanner'
 import { useUrlState } from './hooks/useUrlState'
 import { useQuadrants } from './hooks/useQuadrants'
+import { useReport } from './hooks/useReport'
 import { DEFAULT_ALADIN_SURVEY } from './lib/constants'
 import { findMatchingTestObject } from './data/test-objects'
 import type { TestObject } from './types/quadrant'
-import type { DiffCandidate } from './types/api'
+import type { DiffCandidate, AnomalyType } from './types/api'
 
 export default function App() {
   const [activeSurvey, setActiveSurvey] = useState<string>(DEFAULT_ALADIN_SURVEY)
   const [isBlinkOpen, setIsBlinkOpen] = useState<boolean>(true)
+  const [isReportModalOpen, setIsReportModalOpen] = useState<boolean>(false)
+  const [reportPresetType, setReportPresetType] = useState<AnomalyType | null>(null)
+
+  // Reporting and Simulated Consensus hook (RF-10, RF-11, RF-12, RF-13)
+  const reportState = useReport()
 
   // 1. Dynamic URL State hook (RF-01, RF-02, RF-03)
   const {
@@ -35,6 +42,7 @@ export default function App() {
     isLoading: isQueueLoading,
     selectQuadrantIndex,
     selectQuadrantByCoordinates,
+    updateQuadrantStatus,
   } = useQuadrants({ ra: commandedCoords.ra, dec: commandedCoords.dec })
 
   // 3. Real-time Live Telemetry from Aladin Viewport (updated smoothly as user pans and zooms)
@@ -131,14 +139,59 @@ export default function App() {
   }, [])
 
   // Event handler for clicking on any celestial coordinate (RF-10)
-  const handleClickCoordinates = useCallback((ra: number, dec: number) => {
-    setClickedCoords({ ra, dec })
-  }, [])
+  const handleClickCoordinates = useCallback(
+    (ra: number, dec: number) => {
+      setClickedCoords({ ra, dec })
+      setLiveCenter({ ra, dec })
+      setCoordinatesAndUrl(
+        {
+          ...commandedCoords,
+          ra,
+          dec,
+        },
+        undefined,
+        false
+      )
+    },
+    [commandedCoords, setCoordinatesAndUrl]
+  )
 
   // Event handler for clicking a candidate from the Difference |B - A| panel
-  const handleSelectCandidate = useCallback((candidate: DiffCandidate) => {
-    setClickedCoords({ ra: candidate.ra, dec: candidate.dec })
+  const handleSelectCandidate = useCallback(
+    (candidate: DiffCandidate) => {
+      setClickedCoords({ ra: candidate.ra, dec: candidate.dec })
+      setLiveCenter({ ra: candidate.ra, dec: candidate.dec })
+      setCoordinatesAndUrl(
+        {
+          ...commandedCoords,
+          ra: candidate.ra,
+          dec: candidate.dec,
+        },
+        undefined,
+        false
+      )
+    },
+    [commandedCoords, setCoordinatesAndUrl]
+  )
+
+  // Report modal handlers (RF-10, RF-11, RF-12, RF-13)
+  const handleOpenReport = useCallback(() => {
+    setReportPresetType(null)
+    setIsReportModalOpen(true)
   }, [])
+
+  const handleMarkClean = useCallback(() => {
+    setReportPresetType('limpio')
+    setIsReportModalOpen(true)
+  }, [])
+
+  const handleReportSuccess = useCallback(
+    (quadrantId: string, tipo: AnomalyType) => {
+      const newStatus = tipo === 'limpio' ? 'descartado' : 'confirmado'
+      updateQuadrantStatus(quadrantId, newStatus)
+    },
+    [updateQuadrantStatus]
+  )
 
   // Event handler for centering camera directly on the selected target
   const handleCenterOnSelected = useCallback(() => {
@@ -226,6 +279,8 @@ export default function App() {
               objectName={activeQuadrant?.nombre ?? activeObject?.name}
               tipoPrueba={activeQuadrant?.tipo_prueba ?? activeObject?.tipoPrueba}
               onSelectCandidate={handleSelectCandidate}
+              onOpenReport={handleOpenReport}
+              onMarkClean={handleMarkClean}
               onClose={() => setIsBlinkOpen(false)}
             />
           </div>
@@ -258,15 +313,28 @@ export default function App() {
           {/* Mission Status Badge */}
           <div className="pointer-events-auto rounded-xl bg-slate-950/60 backdrop-blur-md border border-white/10 px-3.5 py-2 font-mono text-[10px] text-slate-400 shadow-lg hidden sm:block">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-slate-200 font-semibold">STAGE 04: DIFF & THRESHOLD ACTIVE</span>
+              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="text-slate-200 font-semibold">STAGE 05: REPORT & CONSENSUS ACTIVE</span>
             </div>
             <p className="text-slate-500 mt-0.5">
-              Matrix |B − A| subtraction with 3-sigma candidate detection (RF-08, RF-09)
+              Anomaly reporting with 3-vote simulated cross-validation consensus (RF-10, RF-12, RF-13)
             </p>
           </div>
         </div>
       </div>
+
+      {/* Anomaly Reporting & Consensus Modal Dialog (RF-10, RF-11, RF-12, RF-13) */}
+      <ReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
+        onNextQuadrant={handleNextQuadrant}
+        quadrant={activeQuadrant}
+        currentRa={clickedCoords?.ra ?? commandedCoords.ra}
+        currentDec={clickedCoords?.dec ?? commandedCoords.dec}
+        initialType={reportPresetType}
+        reportState={reportState}
+        onReportSuccess={handleReportSuccess}
+      />
     </div>
   )
 }

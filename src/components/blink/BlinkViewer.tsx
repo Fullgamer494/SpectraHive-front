@@ -14,6 +14,8 @@ interface BlinkViewerProps {
   objectName?: string
   tipoPrueba?: 'movimiento' | 'brillo'
   onSelectCandidate?: (candidate: DiffCandidate) => void
+  onOpenReport?: () => void
+  onMarkClean?: () => void
   onClose?: () => void
 }
 
@@ -27,6 +29,8 @@ export function BlinkViewer({
   objectName,
   tipoPrueba,
   onSelectCandidate,
+  onOpenReport,
+  onMarkClean,
   onClose,
 }: BlinkViewerProps) {
   const [activeTab, setActiveTab] = useState<'blink' | 'diff'>('blink')
@@ -307,6 +311,25 @@ export function BlinkViewer({
           </div>
         </>
       )}
+
+      {/* 4. Action Bar: Report Anomaly or Mark Clean (RF-10, RF-11) */}
+      <div className="p-3 bg-slate-950/95 border-t border-white/10 flex gap-2">
+        <button
+          type="button"
+          onClick={onOpenReport}
+          className="flex-1 py-2 px-3 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-bold text-xs font-mono tracking-wider uppercase transition-all shadow-md shadow-cyan-950/50 flex items-center justify-center gap-1.5 cursor-pointer"
+        >
+          <span>🚨 Report Anomaly</span>
+        </button>
+        <button
+          type="button"
+          onClick={onMarkClean}
+          className="py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700/60 font-semibold text-xs font-mono tracking-wider uppercase transition-all flex items-center justify-center gap-1 cursor-pointer"
+          title="Mark Quadrant Clean"
+        >
+          <span>🛡️ Clean</span>
+        </button>
+      </div>
 
       {/* Target hint footer */}
       {objectName && (

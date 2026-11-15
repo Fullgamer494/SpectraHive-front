@@ -31,6 +31,7 @@ export interface UseQuadrantsResult {
   selectQuadrantIndex: (index: number) => void
   selectQuadrantById: (id: string) => void
   selectQuadrantByCoordinates: (ra: number, dec: number, tolerance?: number) => void
+  updateQuadrantStatus: (idOrName: string, status: 'confirmado' | 'descartado' | 'pendiente') => void
   reloadQuadrants: () => Promise<void>
 }
 
@@ -109,6 +110,18 @@ export function useQuadrants(initialCoordinates?: { ra: number; dec: number }): 
     []
   )
 
+  // Update local quadrant status (e.g. when confirmed via consensus or marked clean)
+  const updateQuadrantStatus = useCallback(
+    (idOrName: string, status: 'confirmado' | 'descartado' | 'pendiente') => {
+      setQuadrants((prev) =>
+        prev.map((q) =>
+          q.id === idOrName || q.nombre === idOrName ? { ...q, estado: status } : q
+        )
+      )
+    },
+    []
+  )
+
   // Sync initial coordinate matching if provided
   useEffect(() => {
     if (initialCoordinates) {
@@ -130,6 +143,7 @@ export function useQuadrants(initialCoordinates?: { ra: number; dec: number }): 
     selectQuadrantIndex,
     selectQuadrantById,
     selectQuadrantByCoordinates,
+    updateQuadrantStatus,
     reloadQuadrants: loadQuadrants,
   }
 }

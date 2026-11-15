@@ -23,11 +23,12 @@ export async function createReport(
  */
 export async function validateReport(
   reportId: string,
-  coincide = true
+  coincide = true,
+  esSimulado = true
 ): Promise<ValidateReportResponse> {
   return fetchApi<ValidateReportResponse>(`/report/${reportId}/validate`, {
     method: 'POST',
-    body: JSON.stringify({ coincide }),
+    body: JSON.stringify({ coincide, es_simulado: esSimulado }),
   })
 }
 
