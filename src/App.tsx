@@ -12,6 +12,7 @@ import { useQuadrants } from './hooks/useQuadrants'
 import { DEFAULT_ALADIN_SURVEY } from './lib/constants'
 import { findMatchingTestObject } from './data/test-objects'
 import type { TestObject } from './types/quadrant'
+import type { DiffCandidate } from './types/api'
 
 export default function App() {
   const [activeSurvey, setActiveSurvey] = useState<string>(DEFAULT_ALADIN_SURVEY)
@@ -134,6 +135,11 @@ export default function App() {
     setClickedCoords({ ra, dec })
   }, [])
 
+  // Event handler for clicking a candidate from the Difference |B - A| panel
+  const handleSelectCandidate = useCallback((candidate: DiffCandidate) => {
+    setClickedCoords({ ra: candidate.ra, dec: candidate.dec })
+  }, [])
+
   // Event handler for centering camera directly on the selected target
   const handleCenterOnSelected = useCallback(() => {
     if (clickedCoords) {
@@ -207,15 +213,19 @@ export default function App() {
           />
         </div>
 
-        {/* Center-Right Floating Dock: SPHEREx Blink Inspector (RF-06) */}
+        {/* Center-Right Floating Dock: SPHEREx Inspector (Blink & Resta |B-A|) */}
         {isBlinkOpen ? (
           <div className="pointer-events-auto fixed right-4 sm:right-6 top-48 z-20 w-80 sm:w-96 max-w-[calc(100vw-2rem)]">
             <BlinkViewer
               ra={commandedCoords.ra}
               dec={commandedCoords.dec}
               fov={commandedCoords.fov}
+              cuadranteId={activeQuadrant?.id}
+              epocaA={activeQuadrant?.epoca_a}
+              epocaB={activeQuadrant?.epoca_b}
               objectName={activeQuadrant?.nombre ?? activeObject?.name}
               tipoPrueba={activeQuadrant?.tipo_prueba ?? activeObject?.tipoPrueba}
+              onSelectCandidate={handleSelectCandidate}
               onClose={() => setIsBlinkOpen(false)}
             />
           </div>
@@ -228,7 +238,7 @@ export default function App() {
               className="flex items-center gap-2 rounded-2xl bg-slate-950/80 backdrop-blur-md border border-cyan-500/40 px-3.5 py-2 font-mono text-xs text-cyan-300 shadow-[0_4px_24px_rgba(6,182,212,0.3)] hover:bg-slate-900 transition-all cursor-pointer hover:border-cyan-400"
             >
               <span className="h-2 w-2 rounded-full bg-cyan-400 animate-ping" />
-              <span>OPEN BLINK INSPECTOR</span>
+              <span>OPEN SPHEREx INSPECTOR</span>
             </button>
           </div>
         )}
@@ -248,11 +258,11 @@ export default function App() {
           {/* Mission Status Badge */}
           <div className="pointer-events-auto rounded-xl bg-slate-950/60 backdrop-blur-md border border-white/10 px-3.5 py-2 font-mono text-[10px] text-slate-400 shadow-lg hidden sm:block">
             <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
-              <span className="text-slate-200 font-semibold">STAGE 03: BLINK INSPECTOR ACTIVE</span>
+              <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-slate-200 font-semibold">STAGE 04: DIFF & THRESHOLD ACTIVE</span>
             </div>
             <p className="text-slate-500 mt-0.5">
-              Epoch A (DR1) ↔ Epoch B (QR3) infrared cutouts from FastAPI
+              Matrix |B − A| subtraction with 3-sigma candidate detection (RF-08, RF-09)
             </p>
           </div>
         </div>
