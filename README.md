@@ -48,4 +48,11 @@ Declaración de herramientas de IA usadas en este módulo (se reporta en la entr
 | Codex | Revisión NOCTRA: jerarquía tipográfica, Inspector integrado, controles centrados, temas claro/oscuro persistentes y lectura de bandas ADN | pendiente |
 | Codex | Marco perimetral de ingeniería, paneles desplegados, Outfit local, temas tácticos y estilos organizados por módulo | pendiente |
 | Codex | Workspace de observación centrado en el mapa, HUD con coordenadas explicadas y tema oscuro de base | pendiente |
+| Codex | Rediseño visual blanco, negro y amarillo; paneles separados con espacio, tipografía Kodus Pixel para rótulos y Outfit para lectura, tema claro predeterminado | pendiente |
+| Codex | Distribución de observación con herramientas superiores, mapa central, Inspector lateral y datos de referencia inferiores; acentos vectoriales amarillos | pendiente |
+| Codex | Identidad de observatorio con tarjetas redondeadas sin contornos, paleta coral/verde y distribución sin desplazamiento interno para los módulos principales | pendiente |
+| Codex | Reinicio de interfaz como HUD superpuesto a un mapa de pantalla completa, con objetivos y coordenadas a la izquierda y análisis a la derecha | pendiente |
+| Codex | Grupos desplegables Motion/Brightness, selector de tema con modo activo y contraste corregido en los datos del Inspector | pendiente |
+| Codex | Sky coordinates con lectura tipo GPS astronómico: dial del centro, coordenadas principales y estados del cursor y punto seleccionado | pendiente |
+| Codex | Corrección de legibilidad del tema claro: contraste fuerte en paneles, estados activos y tipografía del HUD | pendiente |
 | _por completar_ | | |

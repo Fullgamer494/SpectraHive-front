@@ -8,17 +8,17 @@
 .inspector-modes button { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 39px; padding: 6px; color: var(--ui-muted); background: var(--ui-bg); border: 0; border-bottom: 2px solid transparent; font-size: 11px; }
 .inspector-modes button + button { border-left: 1px solid var(--ui-line); }
 .inspector-modes button[aria-pressed="true"] { background: var(--ui-selection); color: var(--ui-selection-text); border-bottom-color: var(--ui-selection-line); }
-.inspector-image { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; color: #e0e6df; background: #0e171b; cursor: crosshair; }
+.inspector-image { position: relative; width: 100%; aspect-ratio: 1; overflow: hidden; color: #fffefa; background: #11110f; cursor: crosshair; }
 .epoch-image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; opacity: 0; pointer-events: none; }
 .epoch-image.is-visible { opacity: 1; }
-.image-caption { position: absolute; inset: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; background: #192a30; color: #dfe5df; font-size: 11px; border-bottom: 1px solid #455c63; pointer-events: none; }
+.image-caption { position: absolute; inset: 0 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; background: var(--ui-panel); color: var(--ui-text); font-size: 11px; border-bottom: 1px solid var(--ui-line); pointer-events: none; }
 .image-reticle { position: absolute; width: 28px; height: 28px; transform: translate(-50%, -50%); pointer-events: none; }
-.image-reticle span:first-child { position: absolute; top: 50%; width: 100%; height: 1px; background: #e4c38b; }
-.image-reticle span:last-child { position: absolute; left: 50%; height: 100%; width: 1px; background: #e4c38b; }
-.image-message { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; padding: 24px; background: #192a30; color: #e0e6df; text-align: center; }
-.image-message button, .image-reset { border: 1px solid #9c7b46; padding: 8px 12px; background: #d8a654; color: #19252a; }
+.image-reticle span:first-child { position: absolute; top: 50%; width: 100%; height: 1px; background: var(--ui-accent); }
+.image-reticle span:last-child { position: absolute; left: 50%; height: 100%; width: 1px; background: var(--ui-accent); }
+.image-message { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; padding: 24px; background: var(--ui-panel); color: var(--ui-text); text-align: center; }
+.image-message button, .image-reset { border: 1px solid var(--ui-line); padding: 8px 12px; background: var(--ui-accent); color: var(--ui-accent-ink); }
 .image-reset { position: absolute; left: 10px; bottom: 10px; font-size: 12px; }
-.loading-mark { width: 24px; height: 24px; border: 1px solid #708893; border-top-color: #d8a654; animation: engineering-spin 1s linear infinite; }
+.loading-mark { width: 24px; height: 24px; border: 1px solid var(--ui-line); border-top-color: var(--ui-accent); animation: engineering-spin 1s linear infinite; }
 @keyframes engineering-spin { to { transform: rotate(360deg); } }
 .inspector-playback { display: flex; align-items: center; gap: 8px; padding: 12px; border-block: 1px solid var(--ui-line); }
 .inspector-playback button { min-height: 36px; padding: 6px 10px; background: var(--ui-bg); color: var(--ui-muted); border: 1px solid var(--ui-line); font-size: 13px; }

@@ -19,7 +19,10 @@ export function HudHeader({ theme, onToggleTheme, coordinates, activeObjectName,
   return (
     <header className="workspace-header">
       <div className="workspace-brand"><span>SpectraHive</span><span>SPHEREx / Citizen science</span></div>
-      <button className="theme-toggle" type="button" onClick={onToggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}><span>{theme === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}</span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</button>
+      <button className="theme-toggle" type="button" onClick={onToggleTheme} aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`} aria-pressed={theme === 'dark'} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>
+        {theme === 'dark' ? <Moon aria-hidden="true" /> : <Sun aria-hidden="true" />}
+        <span>Theme</span><strong>{theme === 'dark' ? 'Dark' : 'Light'}</strong>
+      </button>
       <div className="workspace-current-target">
         <span className="workspace-eyebrow">OBSERVING</span>
         <strong>{activeObjectName ?? 'Custom field'}</strong>
