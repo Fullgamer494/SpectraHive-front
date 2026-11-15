@@ -55,4 +55,5 @@ Declaración de herramientas de IA usadas en este módulo (se reporta en la entr
 | Codex | Grupos desplegables Motion/Brightness, selector de tema con modo activo y contraste corregido en los datos del Inspector | pendiente |
 | Codex | Sky coordinates con lectura tipo GPS astronómico: dial del centro, coordenadas principales y estados del cursor y punto seleccionado | pendiente |
 | Codex | Corrección de legibilidad del tema claro: contraste fuerte en paneles, estados activos y tipografía del HUD | pendiente |
+| Codex | Adaptación responsive para tablet y móvil con mapa prioritario, controles visibles y sin desplazamiento interno de paneles | pendiente |
 | _por completar_ | | |
